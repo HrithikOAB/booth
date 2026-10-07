@@ -1,0 +1,9 @@
+node_modules
+dist
+.DS_Store
+*.log
+.vite
+Videos/*
+Videos/.*.mp4
+
+dist/videos/.*.mp4

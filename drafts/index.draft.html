@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Cloudera — Data & AI, Anywhere</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:        #0E1A26;
+    --panel:      #10202E;
+    --line:       #2A3D4C;
+    --orange:     #F2662D;
+    --teal:       #4FD1C5;
+    --white:      #FFFFFF;
+    --font-display: 'Space Grotesk', sans-serif;
+    --font-body: 'Inter', sans-serif;
+  }
+  *{ margin:0; padding:0; box-sizing:border-box; }
+  html,body{ height:100%; background:var(--ink); overflow:hidden; }
+  body{ font-family:var(--font-body); color:var(--white); }
+
+  .stage{ position:relative; width:100vw; height:100vh; display:flex; flex-direction:column; }
+
+  .pulse-strip{
+    height:6px; width:100%; flex-shrink:0;
+    background: linear-gradient(90deg, var(--orange) 0%, var(--teal) 50%, var(--orange) 100%);
+    background-size: 200% 100%;
+    animation: flow 6s linear infinite;
+  }
+  @keyframes flow{ 0%{background-position:0% 0;} 100%{background-position:-200% 0;} }
+
+  .video-wrap{ position:relative; flex:1 1 auto; background:#000; overflow:hidden; }
+  .video-wrap iframe{
+    position:absolute; top:50%; left:50%;
+    width:177.8vh; min-width:100%;
+    height:100vh; min-height:56.3vw;
+    transform:translate(-50%,-50%);
+    border:0; pointer-events:none;
+  }
+
+  .now-playing{
+    position:absolute; top:24px; left:32px;
+    display:flex; align-items:center; gap:10px;
+    font-family:var(--font-display); font-size:15px; letter-spacing:.08em; text-transform:uppercase;
+    color:rgba(255,255,255,.75);
+    background:rgba(14,26,38,.55); padding:10px 16px; border-radius:999px;
+    backdrop-filter: blur(6px);
+  }
+  .dot{ width:8px; height:8px; border-radius:50%; background:var(--orange); animation: blink 1.6s ease-in-out infinite; }
+  @keyframes blink{ 0%,100%{opacity:1;} 50%{opacity:.25;} }
+
+  .brand{ position:absolute; top:24px; right:32px; font-family:var(--font-display); font-weight:700; font-size:20px; letter-spacing:.02em; }
+  .brand span{ color:var(--orange); }
+
+  .cta{
+    flex-shrink:0; display:flex; align-items:center; justify-content:space-between;
+    padding:28px 44px; background:var(--panel); border-top:1px solid var(--line);
+    cursor:pointer; -webkit-tap-highlight-color:transparent; user-select:none;
+  }
+  .cta-text{ font-family:var(--font-display); font-weight:600; font-size:clamp(20px,2.4vw,32px); display:flex; align-items:center; gap:18px; }
+  .cta-text .arrow{
+    display:inline-flex; align-items:center; justify-content:center;
+    width:44px; height:44px; border-radius:50%; background:var(--orange); color:var(--ink); font-size:22px;
+    animation: nudge 1.8s ease-in-out infinite;
+  }
+  @keyframes nudge{ 0%,100%{transform:translateX(0);} 50%{transform:translateX(8px);} }
+  .cta-sub{ font-size:15px; color:rgba(255,255,255,.55); }
+
+  @media (max-width: 720px){
+    .cta{ flex-direction:column; align-items:flex-start; gap:10px; }
+    .brand{ font-size:16px; }
+    .now-playing{ font-size:12px; padding:8px 12px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="stage">
+  <div class="pulse-strip"></div>
+
+  <div class="video-wrap">
+    <div id="player"></div>
+    <div class="brand">cloud<span>era</span></div>
+    <div class="now-playing"><span class="dot"></span><span id="nowPlayingLabel">Loading…</span></div>
+  </div>
+
+  <div class="cta" onclick="window.location.href='menu.html'">
+    <div class="cta-text">Tap here to explore Cloudera's capabilities <span class="arrow">&rarr;</span></div>
+    <div class="cta-sub">Choose a technology or an industry to watch a short video</div>
+  </div>
+</div>
+
+<script src="https://www.youtube.com/iframe_api"></script>
+<script>
+  // Idle-loop playlist — mix of capability + industry highlights.
+  // IMPORTANT: this page must be served over http(s), not opened as file://
+  // (double-click) — YouTube's embed player refuses to play on file:// pages.
+  //
+  // If any single video shows "Video unavailable" here but plays fine on
+  // youtube.com, that specific video has embedding disabled by its owner —
+  // swap it for a different ID below, it isn't a bug in this page. You can
+  // quickly test any ID by visiting https://www.youtube.com/embed/VIDEO_ID
+  // directly in a browser tab before the event.
+  const loopPlaylist = [
+    { id: "3RxTxlIsXEY", label: "Cloudera Enterprise AI: Private Cloud" },
+    { id: "Gd5SQ_YCDC4", label: "Open Data Lakehouse & Apache Iceberg" },
+    { id: "fgmWVCp5hX0", label: "Cloudera for Financial Services" },
+    { id: "wL2ORHXYYuU", label: "Cloudera Data in Motion" },
+    { id: "nZs3UTE9hqA", label: "Cloudera for Healthcare & Life Sciences" }
+  ];
+
+  let currentIndex = 0;
+  let player;
+
+  function onYouTubeIframeAPIReady(){
+    player = new YT.Player('player', {
+      videoId: loopPlaylist[0].id,
+      playerVars: {
+        autoplay: 1, mute: 1, controls: 0, rel: 0,
+        modestbranding: 1, playsinline: 1, iv_load_policy: 3
+      },
+      events: {
+        'onReady': (e) => { updateLabel(); e.target.playVideo(); },
+        'onStateChange': (e) => {
+          if (e.data === YT.PlayerState.ENDED) playNext();
+        }
+      }
+    });
+  }
+
+  function playNext(){
+    currentIndex = (currentIndex + 1) % loopPlaylist.length;
+    player.loadVideoById(loopPlaylist[currentIndex].id);
+    updateLabel();
+  }
+
+  function updateLabel(){
+    document.getElementById('nowPlayingLabel').textContent = loopPlaylist[currentIndex].label;
+  }
+</script>
+
+</body>
+</html>

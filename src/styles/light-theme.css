@@ -1,0 +1,165 @@
+/* Light theme — loaded last; re-points the dark surface tokens to white/slate
+   and overrides the few hard-coded dark values. Orange + Cloudera blue stay. */
+:root {
+  --lt-bg: #f4f6f9;
+  --lt-surface: #ffffff;
+  --lt-subtle: #f8fafc;
+  --lt-line: #dbe3ec;
+  --lt-line-strong: #c5d2df;
+  --lt-text: #1a2b3c;
+  --lt-muted: #5a6b7d;
+  --lt-orange: #f2662d;
+  --lt-orange-text: #c2410c;
+  --lt-blue: #2b6cb0;
+  --lt-teal: #0f766e;
+  --lt-shadow: 0 1px 2px rgba(16, 32, 48, 0.05), 0 4px 16px rgba(16, 32, 48, 0.06);
+  --lt-shadow-hover: 0 10px 28px rgba(16, 32, 48, 0.12);
+
+  --shell-bg: #ffffff;
+  --shell-bg-2: #ffffff;
+  --shell-line: var(--lt-line);
+  --shell-text: var(--lt-text);
+  --shell-muted: var(--lt-muted);
+  --shell-accent-soft: rgba(242, 102, 45, 0.1);
+  --focus-ring: 0 0 0 2px #fff, 0 0 0 4px var(--lt-orange);
+}
+body { background: var(--lt-bg); color: var(--lt-text); }
+
+/* ---------- nav, toolbars, palette ---------- */
+.app-nav { background: rgba(255, 255, 255, 0.96); box-shadow: 0 1px 0 var(--lt-line), 0 6px 20px rgba(16, 32, 48, 0.05); color: var(--lt-text); }
+.app-nav .brand { color: var(--lt-text); }
+.app-nav-links a:hover { color: var(--lt-text); background: var(--lt-subtle); }
+.app-nav-links a.active { color: var(--lt-orange-text); }
+.app-nav-search { background: var(--lt-subtle); }
+.app-nav-search:hover { color: var(--lt-text); background: #fff; }
+.app-nav-search kbd, .cmdk-foot kbd { background: #fff; }
+.explorer-toolbar h1 { color: var(--lt-text); }
+.explorer-toolbar .arch-search { background: var(--lt-subtle); color: var(--lt-text); }
+.explorer-page--dark { background: var(--lt-bg); }
+.cmdk-backdrop { background: rgba(15, 30, 45, 0.35); }
+.cmdk { background: #fff; border-color: var(--lt-line); box-shadow: 0 30px 80px rgba(16, 32, 48, 0.25); }
+.cmdk-input { color: var(--lt-text); }
+.cmdk-item.is-sel { color: var(--lt-text); }
+
+/* ---------- component pages, catalog, coverage, industries ---------- */
+.page-scroll {
+  --pg-bg: var(--lt-bg);
+  --pg-panel: var(--lt-surface);
+  --pg-card: var(--lt-surface);
+  --pg-line: var(--lt-line);
+  --pg-text: var(--lt-text);
+  --pg-muted: var(--lt-muted);
+  --pg-teal: var(--lt-teal);
+}
+.crumbs li + li::before { color: #a3b2c2; }
+.cp-hero {
+  background:
+    radial-gradient(circle at 95% -30%, rgba(242, 102, 45, 0.14), transparent 45%),
+    linear-gradient(160deg, #ffffff, #f6f9fc);
+  box-shadow: var(--lt-shadow);
+}
+.cp-tagline, .cp-lead { color: #33475b; }
+.cp-context { color: #134e4a; background: rgba(15, 118, 110, 0.07); }
+.badge--orange { color: var(--lt-orange-text); border-color: rgba(242, 102, 45, 0.45); background: rgba(242, 102, 45, 0.08); }
+.badge--blue { color: #1d4f91; border-color: rgba(43, 108, 176, 0.4); background: rgba(43, 108, 176, 0.07); }
+.badge--slate { color: #475569; border-color: #cbd5e1; background: #f1f5f9; }
+.badge--teal { color: var(--lt-teal); border-color: rgba(15, 118, 110, 0.4); background: rgba(15, 118, 110, 0.07); }
+.badge--violet { color: #6d28d9; border-color: rgba(109, 40, 217, 0.35); background: rgba(109, 40, 217, 0.06); }
+.badge--warn, .comp-foot em.warn { color: #92400e; border-color: rgba(217, 119, 6, 0.45); background: rgba(245, 158, 11, 0.1); }
+.cp-toc button span { color: #94a3b8; }
+.cp-toc button:hover { background: rgba(16, 32, 48, 0.04); }
+.cp-card, .rel-card, .comp-card, .doc-card, .media-card, .cp-steps li, .cov-stats div, .ind-uc, .back-btn { box-shadow: var(--lt-shadow); }
+.rel-card:hover, .comp-card:hover, .doc-card:hover, .ind-uc:hover { box-shadow: var(--lt-shadow-hover); }
+.cp-card p, .cp-list li { color: #33475b; }
+.cp-warn, .cp-notes { color: #78350f; border-color: rgba(217, 119, 6, 0.4); background: #fffbeb; }
+.cp-notes h3 { color: #92400e; }
+.lazy-ph { background: repeating-linear-gradient(135deg, rgba(16, 32, 48, 0.025) 0 12px, transparent 12px 24px); }
+.page-scroll .chip:hover { color: var(--lt-orange-text); }
+.cp-step-n, .yt-play, .pill-row button.on, .ac-tabs button.on, .ac-bar .ac-play-main, .nsp-open { color: #fff; }
+.kicker, .doc-kind, .comp-go, .ind-uc-n, .cp-sec-n, .page-scroll .cp-inline-link, .page-scroll .btn-link { color: var(--lt-orange-text); }
+.vbadge--ok, .cov-table td.ok { color: #15803d; }
+.vbadge--ok { background: rgba(22, 163, 74, 0.08); border-color: rgba(22, 163, 74, 0.35); }
+.vbadge--warn { color: #92400e; background: rgba(245, 158, 11, 0.1); border-color: rgba(217, 119, 6, 0.4); }
+.cov-table td.no { color: #b91c1c; background: rgba(239, 68, 68, 0.06); }
+.cov-table-wrap { background: #fff; }
+.page-loading { color: var(--lt-muted); background: var(--lt-bg); }
+.ind-uc.is-on { background: linear-gradient(160deg, rgba(242, 102, 45, 0.1), #fff 70%); box-shadow: 0 10px 28px -14px rgba(242, 102, 45, 0.55); }
+.page-scroll .industry-module { background: #fff; color: var(--lt-text); box-shadow: var(--lt-shadow); }
+.page-scroll .industry-module-content { background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.96) 55%); }
+.page-scroll .industry-module h2 { color: var(--lt-text); }
+.page-scroll .industry-module-bg,
+.page-scroll .industry-module-video,
+.page-scroll .industry-module-overlay { display: none; }
+.page-scroll .industry-module { min-height: 0; }
+.page-scroll .industry-module-content { min-height: 0; background: none; padding-top: 26px; }
+.page-scroll .industry-module::before { content: ""; position: absolute; inset: 0 0 auto; height: 3px; background: linear-gradient(90deg, var(--lt-orange), #ff9a66); z-index: 2; }
+.page-scroll .industry-module .code { color: var(--lt-orange-text); }
+
+/* ---------- architecture canvas (React Flow) ---------- */
+.ac {
+  --ac-bg: var(--lt-subtle);
+  --ac-panel: #ffffff;
+  --ac-card: #ffffff;
+  --ac-line: var(--lt-line);
+  --ac-text: var(--lt-text);
+  --ac-muted: var(--lt-muted);
+  --ac-blue: var(--lt-blue);
+  --ac-teal: var(--lt-teal);
+  --ac-violet: #7c3aed;
+  box-shadow: var(--lt-shadow);
+}
+.ac-flow {
+  background-color: #f8fafc;
+  background-image: radial-gradient(rgba(16, 32, 48, 0.09) 1px, transparent 1px);
+  background-size: 18px 18px;
+}
+.ac-tabs { background: var(--lt-subtle); }
+.ac-narration { background: rgba(255, 255, 255, 0.96); box-shadow: 0 10px 30px rgba(16, 32, 48, 0.12); }
+.an { box-shadow: 0 2px 8px rgba(16, 32, 48, 0.08); }
+.an:hover { box-shadow: 0 8px 20px rgba(16, 32, 48, 0.12); }
+.an--focus { background: linear-gradient(160deg, #fff7f2, #ffffff); }
+.an--cloudera { --an-accent: #e5531a; }
+.an--partner { --an-accent: #64748b; }
+.an--data, .an--store { --an-accent: #b7791f; }
+.an--client, .an--external { --an-accent: #64748b; }
+.an-expand { background: rgba(15, 118, 110, 0.06); border-color: rgba(15, 118, 110, 0.4); }
+.an-expand:hover { background: rgba(15, 118, 110, 0.12); }
+.an--selected { box-shadow: 0 0 0 2px var(--lt-orange), 0 10px 24px rgba(16, 32, 48, 0.15); }
+.ag { background: rgba(255, 255, 255, 0.7); }
+.ac .react-flow__edge-path.pe { stroke: #94a3b8; }
+.pe-dot { filter: drop-shadow(0 0 2px rgba(15, 118, 110, 0.5)); }
+.pe-label { background: rgba(255, 255, 255, 0.96); }
+.nsp-desc { color: #33475b; }
+.ac .react-flow__minimap { box-shadow: var(--lt-shadow); }
+.ac .react-flow__minimap-mask { fill: rgba(241, 245, 249, 0.75); }
+
+/* ---------- explore diagram (PlatformStack) ---------- */
+.pex-viewport {
+  --glass: #ffffff;
+  --brd: var(--lt-line);
+  --hi: var(--lt-text);
+  --lo: var(--lt-muted);
+  --base-accent: var(--lt-blue);
+  background:
+    radial-gradient(900px 520px at 12% -8%, rgba(43, 108, 176, 0.08), transparent 55%),
+    radial-gradient(900px 520px at 88% -8%, rgba(242, 102, 45, 0.08), transparent 55%),
+    var(--lt-bg);
+}
+.pex-env { background: #fff; box-shadow: 0 10px 30px rgba(16, 32, 48, 0.07); backdrop-filter: none; -webkit-backdrop-filter: none; }
+.pex-tile, .pex-band, .pex-mgr, .pex-platform, .pex-subpanel, .pex-gov, .pex-obj-bar, .pex-flow-chip, .pex-deploy-box { background: var(--lt-subtle); backdrop-filter: none; }
+.pex-flow-chip { background: #fff; box-shadow: var(--lt-shadow); }
+.pex-plat-cell { background: #fff; }
+.pex-plat-cell.pex-plat-cell--sdx { background: linear-gradient(155deg, #3b82e8, #1e3a8a); border-color: rgba(59, 130, 232, 0.5); }
+.pex-tile-ic { background: #fff; box-shadow: 0 2px 8px rgba(16, 32, 48, 0.1); }
+.pex-tile--base:hover, .pex-tile--cac:hover { box-shadow: var(--lt-shadow-hover); }
+.pex-flow-chip:hover { border-color: var(--lt-line-strong); }
+.pex-flow-chip.is-on { background: rgba(242, 102, 45, 0.08); }
+.pex-logos .eng-brand { box-shadow: 0 1px 4px rgba(16, 32, 48, 0.1); }
+.pex-env .cda-mark__suffix, .pex-mgr .cda-mark__suffix, .pex-deploy .cda-mark__suffix { color: #1d4f91; }
+.pex-plat-cell--sdx .cda-mark__suffix { color: #fff; }
+.pex-fabric-wrap { background: rgba(242, 102, 45, 0.04); }
+.pex-fabric-title, .pex-gov-link.is-active strong { color: var(--lt-orange-text); }
+.pex-gov-chip { background: #fff; }
+.pex-gov-chip:hover, .pex-gov-chip.is-active { color: var(--lt-orange-text); background: rgba(242, 102, 45, 0.08); }
+.pex-wire-dot { fill: var(--lt-orange); }
+.pstack-play.is-playing { background: linear-gradient(135deg, #64748b, #475569); }

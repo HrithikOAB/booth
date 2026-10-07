@@ -1,0 +1,206 @@
+{
+  "cloudera-ai": {
+    "youtubeId": "_ijsX-TPqCc",
+    "title": "Why Cloudera AI is the Key to Solving Your Data Readiness and AI Project Backlog",
+    "channel": "Cloudera, Inc.",
+    "channelUrl": "https://www.youtube.com/@ClouderaInc"
+  },
+  "cloudera-data-flow": {
+    "youtubeId": "tLEGcWC4paI",
+    "title": "What’s new in Cloudera Data Flow 2.10: Easily Build and Deploy NiFi 2 Flows",
+    "channel": "Cloudera, Inc.",
+    "channelUrl": "https://www.youtube.com/@ClouderaInc"
+  },
+  "cloudera-data-lakehouse": {
+    "youtubeId": "DcC7OCP8ke0",
+    "title": "Why Cloudera Open Data Lakehouse with Apache Iceberg? | Modernize for Enterprise AI",
+    "channel": "Cloudera, Inc.",
+    "channelUrl": "https://www.youtube.com/@ClouderaInc"
+  },
+  "cloudera-data-engineering": {
+    "youtubeId": "d7X5UY8o56k",
+    "title": "External IDE Connectivity: Access Spark from Your Favorite IDE with Cloudera Data Engineering",
+    "channel": "Cloudera, Inc.",
+    "channelUrl": "https://www.youtube.com/@ClouderaInc"
+  },
+  "cloudera-data-warehouse": {
+    "youtubeId": "w4rte8HIjBI",
+    "title": "ClouderaNow 21 - Easily Create Insights From All Your Data",
+    "channel": "Cloudera, Inc.",
+    "channelUrl": "https://www.youtube.com/@ClouderaInc"
+  },
+  "cloudera-agent-studio": {
+    "youtubeId": "XZMaJaLBN6s",
+    "title": "Cloudera Agent Studio",
+    "channel": "Cloudera, Inc.",
+    "channelUrl": "https://www.youtube.com/@ClouderaInc"
+  },
+  "cloudera-manager": {
+    "error": "TypeError: fetch failed"
+  },
+  "cloudera-sdx": {
+    "youtubeId": "aFHlU9P5mFg",
+    "title": "Data Sharing Powered by REST Catalog",
+    "channel": "Cloudera, Inc.",
+    "channelUrl": "https://www.youtube.com/@ClouderaInc"
+  },
+  "cloudera-data-lineage": {
+    "youtubeId": "FEDicBHXkgc",
+    "title": "Cloudera Octopai Overview: Intelligent Automated Data Lineage",
+    "channel": "OCTOPAI",
+    "channelUrl": "https://www.youtube.com/@octopai1"
+  },
+  "cloudera-anywhere-cloud": {
+    "youtubeId": "-dtzknHhvTo",
+    "title": "From 60 Days to 60 Minutes: Introducing Cloudera Anywhere Cloud",
+    "channel": "Cloudera, Inc.",
+    "channelUrl": "https://www.youtube.com/@ClouderaInc"
+  },
+  "cloudera-object-store": {
+    "youtubeId": "qt8bhOy65xg",
+    "title": "Introduction to Ozone on Cloudera Data Platform",
+    "channel": "Cloudera, Inc.",
+    "channelUrl": "https://www.youtube.com/@ClouderaInc"
+  },
+  "cloudera-platform": {
+    "youtubeId": "OCa5RNJOI-8",
+    "title": "Cloudera Data in Motion: Achieve True Real-Time AI & Stream Processing with Apache NiFi",
+    "channel": "Cloudera, Inc.",
+    "channelUrl": "https://www.youtube.com/@ClouderaInc"
+  },
+  "cloudera-base-datahub": {
+    "youtubeId": "bhgoqLpy44Q",
+    "title": "Use Case — Universal Data Distribution With Cloudera DataFlow for Public Cloud (CDF-PC)",
+    "channel": "Cloudera, Inc.",
+    "channelUrl": "https://www.youtube.com/@ClouderaInc"
+  },
+  "unified-data-fabric": {
+    "youtubeId": "Jr8FOQLgZcY",
+    "title": "Cloudera Unified Data Fabric: Automate Data Governance, Lineage, and Trust Across Your Enterprise",
+    "channel": "Cloudera, Inc.",
+    "channelUrl": "https://www.youtube.com/@ClouderaInc"
+  },
+  "apache-spark": {
+    "youtubeId": "iXVIPQEGZ9Y",
+    "title": "Apache Spark Architecture - EXPLAINED!",
+    "channel": "Databricks For Professionals",
+    "channelUrl": "https://www.youtube.com/@Emil-Kaminski"
+  },
+  "spark-4": {
+    "youtubeId": "gWWysCAubRk",
+    "title": "What’s New in Apache Spark™ 4.0?",
+    "channel": "Databricks",
+    "channelUrl": "https://www.youtube.com/@Databricks"
+  },
+  "apache-nifi": {
+    "error": "TypeError: fetch failed"
+  },
+  "apache-kafka": {
+    "youtubeId": "-DyWhcX3Dpc",
+    "title": "1. Introduction | Apache Kafka Fundamentals",
+    "channel": "Confluent, an IBM Company",
+    "channelUrl": "https://www.youtube.com/@Confluent"
+  },
+  "trino": {
+    "youtubeId": "zA8RFDpoJ0A",
+    "title": "What is Trino? | Starburst DevCenter",
+    "channel": "Starburst",
+    "channelUrl": "https://www.youtube.com/@StarburstData"
+  },
+  "apache-iceberg": {
+    "youtubeId": "C_cMEfMUVdA",
+    "title": "Apache Iceberg Explained: A Tutorial with Dremio #shorts",
+    "channel": "Dremio",
+    "channelUrl": "https://www.youtube.com/@Dremio"
+  },
+  "apache-flink": {
+    "youtubeId": "PVoc5tRr6to",
+    "title": "What is Apache Flink®?",
+    "channel": "Confluent, an IBM Company",
+    "channelUrl": "https://www.youtube.com/@Confluent"
+  },
+  "apache-impala": {
+    "youtubeId": "HSCJi4TnN3k",
+    "title": "Apache Impala 101: A quick-start guide",
+    "channel": "Cloudera, Inc.",
+    "channelUrl": "https://www.youtube.com/@ClouderaInc"
+  },
+  "apache-hive": {
+    "error": "TypeError: fetch failed"
+  },
+  "apache-airflow": {
+    "error": "TypeError: fetch failed"
+  },
+  "neo4j": {
+    "youtubeId": "HjvQSfGIyHo",
+    "title": "Neo4j Fundamentals on #NODES2025",
+    "channel": "Neo4j",
+    "channelUrl": "https://www.youtube.com/@neo4j"
+  },
+  "starrocks": {
+    "youtubeId": "-yVk7t942is",
+    "title": "What is StarRocks",
+    "channel": "PhoenixAI (the original creator of StarRocks)",
+    "channelUrl": "https://www.youtube.com/@PhoenixAI-data"
+  },
+  "clickhouse": {
+    "youtubeId": "FtoWGT7kS-c",
+    "title": "What Is ClickHouse?",
+    "channel": "ClickHouse",
+    "channelUrl": "https://www.youtube.com/@ClickHouseDB"
+  },
+  "apache-atlas": {
+    "youtubeId": "Cp1cYP7i8S8",
+    "title": "Data Lineage and Metadata Management Demo",
+    "channel": "Cloudera, Inc.",
+    "channelUrl": "https://www.youtube.com/@ClouderaInc"
+  },
+  "apache-ranger": {
+    "youtubeId": "9GIAwAaP5ek",
+    "title": "Securing Your Data Universe | A Deep Dive into Apache Ranger's Architecture & Capabilities",
+    "channel": "Cloudera, Inc.",
+    "channelUrl": "https://www.youtube.com/@ClouderaInc"
+  },
+  "google-cloud": {
+    "youtubeId": "KQm_mbHMKcU",
+    "title": "What’s new in CDP Public Cloud?",
+    "channel": "Cloudera, Inc.",
+    "channelUrl": "https://www.youtube.com/@ClouderaInc"
+  },
+  "microsoft-azure": {
+    "youtubeId": "rLgBlUC8TbU",
+    "title": "Big Data Industry best practices: A deep look into Cloudera Data Platform | Open Azure Day",
+    "channel": "Microsoft Azure",
+    "channelUrl": "https://www.youtube.com/@MicrosoftAzure"
+  },
+  "aws": {
+    "youtubeId": "rf2RGi6xV5k",
+    "title": "Meet Cloudera at AWS Summit Washington DC 2026",
+    "channel": "Cloudera, Inc.",
+    "channelUrl": "https://www.youtube.com/@ClouderaInc"
+  },
+  "s3-storage": {
+    "youtubeId": "77lMCiiMilo",
+    "title": "Introduction to Amazon Simple Storage Service (S3) - Cloud Storage on AWS",
+    "channel": "Amazon Web Services",
+    "channelUrl": "https://www.youtube.com/@amazonwebservices"
+  },
+  "dell-technologies": {
+    "youtubeId": "xJ0VHwvf97w",
+    "title": "Meet the refreshed Dell Pro portfolio. Pro 3 | Pro 5 | Pro 7",
+    "channel": "Dell Technologies India",
+    "channelUrl": "https://www.youtube.com/@DellTechnologies-India"
+  },
+  "nvidia": {
+    "youtubeId": "RYcSax0zLcg",
+    "title": "Avoid the Cloud Token Trap & Secure Your AI | Cloudera AI Inference Service Demo",
+    "channel": "Cloudera, Inc.",
+    "channelUrl": "https://www.youtube.com/@ClouderaInc"
+  },
+  "amd": {
+    "youtubeId": "-MnHCTShMMY",
+    "title": "What is ROCm™?",
+    "channel": "AMD Developer Central",
+    "channelUrl": "https://www.youtube.com/@AMDDevCentral"
+  }
+}

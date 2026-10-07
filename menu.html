@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Cloudera — Explore Capabilities</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:        #0E1A26;
+    --panel:      #10202E;
+    --card:       #15283A;
+    --card-hover: #1B3247;
+    --line:       #2A3D4C;
+    --orange:     #F2662D;
+    --orange-dim: #C4501F;
+    --teal:       #4FD1C5;
+    --white:      #FFFFFF;
+    --muted:      rgba(255,255,255,.6);
+    --font-display: 'Space Grotesk', sans-serif;
+    --font-body: 'Inter', sans-serif;
+  }
+  *{ margin:0; padding:0; box-sizing:border-box; }
+  html,body{ height:100%; }
+  body{ background:var(--ink); color:var(--white); font-family:var(--font-body); min-height:100vh; display:flex; flex-direction:column; }
+
+  .pulse-strip{
+    height:6px; width:100%; flex-shrink:0;
+    background: linear-gradient(90deg, var(--orange) 0%, var(--teal) 50%, var(--orange) 100%);
+    background-size: 200% 100%;
+    animation: flow 6s linear infinite;
+  }
+  @keyframes flow{ 0%{background-position:0% 0;} 100%{background-position:-200% 0;} }
+
+  header{ display:flex; align-items:center; justify-content:space-between; padding:28px 44px 8px; flex-shrink:0; }
+  .brand{ font-family:var(--font-display); font-weight:700; font-size:22px; }
+  .brand span{ color:var(--orange); }
+  .back-link{
+    font-family:var(--font-display); font-weight:600; font-size:15px; color:var(--muted); text-decoration:none;
+    display:flex; align-items:center; gap:8px; padding:10px 18px; border:1px solid var(--line); border-radius:999px;
+  }
+  .back-link:active{ background:var(--card); }
+
+  .title-block{ padding:12px 44px 28px; flex-shrink:0; }
+  .title-block h1{ font-family:var(--font-display); font-weight:700; font-size:clamp(28px,3.4vw,44px); letter-spacing:-.01em; }
+  .title-block p{ color:var(--muted); margin-top:8px; font-size:16px; }
+
+  main{ flex:1 1 auto; padding:0 44px 44px; display:grid; grid-template-columns:1fr 1fr; gap:36px; overflow-y:auto; }
+  .column h2{
+    font-family:var(--font-display); font-weight:600; font-size:14px; letter-spacing:.12em; text-transform:uppercase;
+    color:var(--orange); margin-bottom:16px; padding-bottom:10px; border-bottom:1px solid var(--line);
+  }
+  .grid{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+
+  .item{
+    background:var(--card); border:1px solid var(--line); border-radius:14px; padding:18px 18px 16px;
+    cursor:pointer; -webkit-tap-highlight-color:transparent;
+    transition: background .15s ease, transform .1s ease, border-color .15s ease;
+    display:flex; flex-direction:column; gap:6px; min-height:96px;
+  }
+  .item:active{ transform:scale(.97); }
+  .item:hover{ background:var(--card-hover); border-color:var(--orange-dim); }
+  .item .name{ font-family:var(--font-display); font-weight:600; font-size:17px; }
+  .item .desc{ font-size:13px; color:var(--muted); line-height:1.4; }
+  .item .tag{ align-self:flex-start; font-size:10px; letter-spacing:.08em; text-transform:uppercase; color:var(--teal); margin-top:4px; }
+  .item.linkout .tag{ color:var(--orange); }
+
+  .modal-overlay{
+    position:fixed; inset:0; background:rgba(6,12,18,.92);
+    display:none; align-items:center; justify-content:center; z-index:50; padding:5vw;
+  }
+  .modal-overlay.open{ display:flex; }
+  .modal-box{ width:100%; max-width:1100px; background:#000; border-radius:16px; overflow:hidden; box-shadow:0 30px 80px rgba(0,0,0,.6); position:relative; }
+  .modal-box .frame-wrap{ position:relative; width:100%; padding-top:56.25%; }
+  .modal-box iframe{ position:absolute; inset:0; width:100%; height:100%; border:0; }
+  .modal-close{
+    position:absolute; top:-52px; right:0;
+    font-family:var(--font-display); font-weight:600; font-size:15px; color:var(--white);
+    background:var(--card); border:1px solid var(--line); border-radius:999px; padding:10px 20px; cursor:pointer;
+  }
+
+  @media (max-width: 860px){
+    main{ grid-template-columns:1fr; overflow-y:auto; }
+    .grid{ grid-template-columns:1fr 1fr; }
+    header{ padding:20px 24px 4px; }
+    .title-block{ padding:8px 24px 20px; }
+    main{ padding:0 24px 24px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="pulse-strip"></div>
+
+<header>
+  <div class="brand">cloud<span>era</span></div>
+  <a class="back-link" href="index.html">&larr; Back to loop</a>
+</header>
+
+<div class="title-block">
+  <h1>Explore our capabilities</h1>
+  <p>Tap a technology or an industry to watch a short video</p>
+</div>
+
+<main>
+  <div class="column">
+    <h2>Technical capabilities</h2>
+    <div class="grid" id="techGrid"></div>
+  </div>
+  <div class="column">
+    <h2>Domain capabilities</h2>
+    <div class="grid" id="domainGrid"></div>
+  </div>
+</main>
+
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal-box">
+    <div class="modal-close" id="modalClose">Close &times;</div>
+    <div class="frame-wrap">
+      <iframe id="modalFrame" src="" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ---- Content model -------------------------------------------------
+  // type: "youtube" | "brightcove" | "link"
+  // NOTE: this page must be served over http(s), not opened as file://
+  // (double-click) — YouTube's embed player refuses to play on file:// pages.
+  //
+  // If a tile shows "Video unavailable" when clicked but the video plays
+  // fine on youtube.com, that video has embedding disabled by its owner —
+  // swap its id below for a different one. Quick way to test any id before
+  // the event: open https://www.youtube.com/embed/VIDEO_ID directly.
+
+  const technical = [
+    { name:"Enterprise AI",            desc:"Bringing AI to data anywhere",           type:"youtube",    id:"hPLFltbLcik" },
+    { name:"Private AI",               desc:"Enterprise AI on your own terms",        type:"youtube",    id:"JqWmErXze-s" },
+    { name:"Data Warehouse",           desc:"Modern analytics at scale",              type:"youtube",    id:"jdN5vOQEX6I" },
+    { name:"Data Engineering",         desc:"Pipelines for data & AI",                type:"youtube",    id:"takznOgmBdg" },
+    { name:"Data in Motion",           desc:"Streaming & edge-to-cloud (DataFlow)",   type:"youtube",    id:"wL2ORHXYYuU" },
+    { name:"Open Data Lakehouse",      desc:"Apache Iceberg, open table format",      type:"youtube",    id:"Gd5SQ_YCDC4" },
+    { name:"Shared Data Experience",   desc:"Security, governance & metadata (SDX)",  type:"youtube",    id:"zGKsXAanRXc" },
+    { name:"Operational DB & Viz",     desc:"Real-time apps + data visualization",    type:"youtube",    id:"X2ty3Ix_dRA" },
+  ];
+
+  const domain = [
+    { name:"Banking & Financial Services", desc:"Real-time, secure banking data",      type:"youtube",    id:"fgmWVCp5hX0" },
+    { name:"Insurance",                    desc:"Octo Telematics — connected-car risk", type:"brightcove", id:"6121501118001" },
+    { name:"Healthcare & Life Sciences",   desc:"Patient data, AI & analytics",         type:"youtube",    id:"nZs3UTE9hqA" },
+    { name:"Cross-Industry Data & AI",     desc:"Unifying data for AI, BI & ML",        type:"youtube",    id:"29JnbO6LL6g" },
+    { name:"Telecommunications",           desc:"Case study — network & billing data",  type:"link",       url:"https://www.cloudera.com/solutions/telecommunications.html" },
+    { name:"Manufacturing",                desc:"Case study — IoT & connected products",type:"link",       url:"https://www.cloudera.com/solutions/manufacturing.html" },
+  ];
+
+  function renderGrid(list, containerId){
+    const el = document.getElementById(containerId);
+    list.forEach(item => {
+      const div = document.createElement('div');
+      div.className = 'item' + (item.type === 'link' ? ' linkout' : '');
+      div.innerHTML = `
+        <div class="name">${item.name}</div>
+        <div class="desc">${item.desc}</div>
+        <div class="tag">${item.type === 'link' ? 'Case study \u2197' : 'Watch video'}</div>
+      `;
+      div.addEventListener('click', () => handleItemClick(item));
+      el.appendChild(div);
+    });
+  }
+
+  renderGrid(technical, 'techGrid');
+  renderGrid(domain, 'domainGrid');
+
+  // ---- Modal / playback -----------------------------------------------
+  const overlay = document.getElementById('modalOverlay');
+  const frame = document.getElementById('modalFrame');
+  const closeBtn = document.getElementById('modalClose');
+
+  function handleItemClick(item){
+    if (item.type === 'link'){
+      window.open(item.url, '_blank');
+      return;
+    }
+    let src = '';
+    if (item.type === 'youtube'){
+      src = `https://www.youtube.com/embed/${item.id}?autoplay=1&rel=0&modestbranding=1`;
+    } else if (item.type === 'brightcove'){
+      src = `https://players.brightcove.net/6082840760001/default_default/index.html?videoId=${item.id}&autoplay=true`;
+    }
+    frame.src = src;
+    overlay.classList.add('open');
+  }
+
+  function closeModal(){
+    overlay.classList.remove('open');
+    frame.src = '';
+  }
+  closeBtn.addEventListener('click', closeModal);
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) closeModal(); });
+
+  // ---- Idle timeout: return to main loop after inactivity --------------
+  let idleTimer;
+  function resetIdle(){
+    clearTimeout(idleTimer);
+    idleTimer = setTimeout(() => { window.location.href = 'index.html'; }, 90000);
+  }
+  ['click','touchstart','keydown'].forEach(evt => document.addEventListener(evt, resetIdle));
+  resetIdle();
+</script>
+
+</body>
+</html>

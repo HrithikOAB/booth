@@ -1,10 +1,27 @@
 import { useRef, useState } from "react";
 import { motion } from "framer-motion";
-import { basePillar, cacPillar, connectorFlows, deployment, diagramTitle } from "../../data/architectureBlueprint.js";
+import { basePillar, cacPillar, connectorFlows, deployment } from "../../data/architectureBlueprint.js";
 import ServiceGlyphs from "./ServiceGlyphs.jsx";
 import { BrandLogo, ClouderaMark } from "./BrandLogos.jsx";
 import { useDiagramState } from "./DiagramHit.jsx";
-import { resolveNode } from "../../data/registry/index.js";
+import { resolveNode, OWNERSHIP } from "../../data/registry/index.js";
+
+const GOVERNANCE_IDS = [
+  "base-sdx", "base-platform", "unified-fabric", "atlas-ranger", "gov-atlas", "gov-ranger",
+  "gov-governance", "gov-security", "gov-metadata", "data-lineage", "hybrid-auth", "hybrid-meta",
+];
+
+/** The four building blocks Cloudera documents for hybrid environments. */
+const HYBRID_PILLS = [
+  ["hybrid-auth", "Unified authentication"],
+  ["hybrid-meta", "Metadata sync"],
+  ["hybrid-net", "Network connectivity"],
+  ["hybrid-port", "Workload portability"],
+];
+
+function Tag({ children, tone = "oss" }) {
+  return <span className={`arch-v2-tag arch-v2-tag--${tone}`}>{children}</span>;
+}
 
 /* ---- entrance animation variants ---- */
 const stage = {
@@ -71,12 +88,24 @@ function LineageGlyph() {
 const SERVICE_ICON = { "cac-de2": "de", "cac-dl2": "dl", "cac-ai2": "ai", "cac-df2": "df" };
 
 export default function PlatformArchitectureV2({ searchQuery = "" }) {
-  const st = useDiagramState(searchQuery);
+  const [govOn, setGovOn] = useState(false);
+  const st = useDiagramState(searchQuery, govOn ? GOVERNANCE_IDS : null);
   const { hoverId, setHoverId, highlightIds, go: goService } = st;
   const [activeFlow, setActiveFlow] = useState(null);
   const [scale, setScale] = useState(0.92);
   const [pan, setPan] = useState({ x: 0, y: 0 });
+  const [tip, setTip] = useState(null);
   const drag = useRef(null);
+  const viewportRef = useRef(null);
+
+  const onHoverMove = (e) => {
+    const el = e.target.closest?.("[data-node]");
+    const c = el && resolveNode(el.dataset.node)?.component;
+    if (!c) return setTip(null);
+    const vr = viewportRef.current.getBoundingClientRect();
+    const r = el.getBoundingClientRect();
+    setTip({ id: el.dataset.node, name: c.name, line: c.booth.oneLiner, tag: OWNERSHIP[c.booth.ownership]?.label, x: r.left - vr.left + r.width / 2, y: r.top - vr.top });
+  };
 
   const isDim = st.dim;
   const flowDim = (flowId) => Boolean(activeFlow && activeFlow !== flowId);
@@ -99,12 +128,17 @@ export default function PlatformArchitectureV2({ searchQuery = "" }) {
 
   return (
     <div
-      className="arch-v2-viewport"
+      ref={viewportRef}
+      className={`arch-v2-viewport${govOn ? " is-gov" : ""}`}
       onWheel={onWheel}
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}
       onPointerUp={endDrag}
-      onPointerLeave={endDrag}
+      onPointerLeave={() => {
+        endDrag();
+        setTip(null);
+      }}
+      onMouseOver={onHoverMove}
     >
       <motion.div
         className="arch-v2-stage"
@@ -113,10 +147,6 @@ export default function PlatformArchitectureV2({ searchQuery = "" }) {
         initial="hidden"
         animate="show"
       >
-        <motion.h2 className="arch-v2-diagram-title" variants={reveal}>
-          {diagramTitle}
-        </motion.h2>
-
         <div className="arch-v2-board">
           {/* animated connector wiring */}
           <svg className="arch-v2-wiring" viewBox="0 0 1320 640" preserveAspectRatio="none" aria-hidden="true">
@@ -127,23 +157,23 @@ export default function PlatformArchitectureV2({ searchQuery = "" }) {
             </defs>
 
             <g className={`arch-v2-flow arch-v2-flow--jobs ${activeFlow === "flow-jobs" ? "is-on" : ""} ${flowDim("flow-jobs") ? "is-off" : ""}`}>
-              <path className="arch-v2-path" d="M 406 96 L 548 96 L 760 96" markerStart="url(#arch-v2-dot)" markerEnd="url(#arch-v2-dot)" />
+              <path className="arch-v2-path" d="M 520 96 L 660 96 L 800 96" markerStart="url(#arch-v2-dot)" markerEnd="url(#arch-v2-dot)" />
               <circle r="5" className="arch-v2-pulse">
-                <animateMotion dur="2.8s" repeatCount="indefinite" path="M 406 96 L 760 96" />
+                <animateMotion dur="2.8s" repeatCount="indefinite" path="M 520 96 L 800 96" />
               </circle>
             </g>
 
             <g className={`arch-v2-flow arch-v2-flow--query ${activeFlow === "flow-query" ? "is-on" : ""} ${flowDim("flow-query") ? "is-off" : ""}`}>
-              <path className="arch-v2-path arch-v2-path--thin" d="M 760 300 L 548 300 L 406 352" markerStart="url(#arch-v2-dot)" markerEnd="url(#arch-v2-dot)" />
+              <path className="arch-v2-path arch-v2-path--thin" d="M 800 300 L 660 300 L 520 352" markerStart="url(#arch-v2-dot)" markerEnd="url(#arch-v2-dot)" />
               <circle r="5" className="arch-v2-pulse arch-v2-pulse--orange">
-                <animateMotion dur="3.2s" repeatCount="indefinite" path="M 760 300 L 548 300 L 406 352" />
+                <animateMotion dur="3.2s" repeatCount="indefinite" path="M 800 300 L 660 300 L 520 352" />
               </circle>
             </g>
 
             <g className={`arch-v2-flow arch-v2-flow--data ${activeFlow === "flow-data" ? "is-on" : ""} ${flowDim("flow-data") ? "is-off" : ""}`}>
-              <path className="arch-v2-path" d="M 406 512 L 548 512 L 760 480" markerStart="url(#arch-v2-dot)" markerEnd="url(#arch-v2-dot)" />
+              <path className="arch-v2-path" d="M 520 512 L 660 512 L 800 480" markerStart="url(#arch-v2-dot)" markerEnd="url(#arch-v2-dot)" />
               <circle r="5" className="arch-v2-pulse arch-v2-pulse--teal">
-                <animateMotion dur="3.6s" repeatCount="indefinite" path="M 760 480 L 548 512 L 406 512" />
+                <animateMotion dur="3.6s" repeatCount="indefinite" path="M 800 480 L 660 512 L 520 512" />
               </circle>
             </g>
           </svg>
@@ -153,7 +183,9 @@ export default function PlatformArchitectureV2({ searchQuery = "" }) {
             <div className="arch-v2-frame arch-v2-frame--base">
               <Block st={st} node="base-frame" className="arch-v2-pillar-head arch-v2-pillar-head--blue">
                 <strong>{basePillar.title}</strong>
-                <span>{basePillar.subtitle}</span>
+                <span>
+                  {basePillar.subtitle} <Tag tone="ref">Reference architecture</Tag>
+                </span>
               </Block>
 
               <div className="arch-v2-service-row">
@@ -178,7 +210,7 @@ export default function PlatformArchitectureV2({ searchQuery = "" }) {
 
               <div className="arch-v2-block arch-v2-band arch-v2-band--engines">
                 <Block st={st} to="/components?category=engines" title="Open all engines" className="arch-v2-band-label">
-                  {basePillar.enginesLabel}
+                  {basePillar.enginesLabel} <Tag>Open source</Tag>
                 </Block>
                 <div className="arch-v2-engine-logos">
                   <Block st={st} node="eng-spark" className="arch-v2-logo"><BrandLogo id="spark" /></Block>
@@ -245,7 +277,9 @@ export default function PlatformArchitectureV2({ searchQuery = "" }) {
             <motion.div variants={reveal}>
               <Block st={st} node="cac-frame" className="arch-v2-cac-head">
                 <strong>{cacPillar.title}</strong>
-                <span>{cacPillar.subtitle}</span>
+                <span>
+                  {cacPillar.subtitle} <Tag tone="ref">Reference architecture</Tag>
+                </span>
               </Block>
             </motion.div>
 
@@ -277,7 +311,7 @@ export default function PlatformArchitectureV2({ searchQuery = "" }) {
 
                 <div className="arch-v2-cac-panel arch-v2-cac-panel--engines">
                   <Block st={st} to="/components?category=engines" title="Open all engines" className="arch-v2-panel-title">
-                    {cacPillar.engines.label}
+                    {cacPillar.engines.label} <Tag>Open source</Tag>
                   </Block>
                   <div className="arch-v2-engine-logos arch-v2-engine-logos--stack">
                     <Block id="cac-spark4" st={st} node="cac-spark4" className="arch-v2-logo">
@@ -292,7 +326,7 @@ export default function PlatformArchitectureV2({ searchQuery = "" }) {
 
               <div className="arch-v2-frame arch-v2-frame--cac arch-v2-partner-frame">
                 <Block st={st} to="/components?category=partners" title="Open all partner engines" className="arch-v2-panel-title">
-                  Partner Engines <em>(Examples)</em>
+                  Partner Engines <em>(Examples)</em> <Tag tone="partner">Partner</Tag>
                 </Block>
                 <div className="arch-v2-engine-logos arch-v2-engine-logos--stack">
                   {cacPillar.partners.items.map((p) => (
@@ -342,35 +376,73 @@ export default function PlatformArchitectureV2({ searchQuery = "" }) {
           </aside>
         </div>
 
-        {/* ---------- FOOTER: deployment surfaces ---------- */}
-        <motion.div className="arch-v2-deploy" variants={reveal}>
-          <div className="arch-v2-deploy-box arch-v2-deploy-box--cloud">
-            <Block st={st} node="deploy-cloud" className="arch-v2-deploy-head">
-              <span className="arch-v2-deploy-icon arch-v2-deploy-icon--cloud" aria-hidden="true" />
-              {deployment.cloud.label}
-            </Block>
-            <div className="arch-v2-deploy-logos">
-              {[["cloud-gcp", "gcp"], ["cloud-azure", "azure"], ["cloud-aws", "aws"]].map(([id, logo]) => (
-                <Block key={id} st={st} node={id} className="arch-v2-deploy-tile"><BrandLogo id={logo} /></Block>
-              ))}
+        {/* ---------- FOOTER: deploy anywhere (hybrid cloud) ---------- */}
+        <motion.div className="arch-v2-hybrid" variants={reveal}>
+          <Block st={st} node="hybrid-core" className="arch-v2-hybrid-head">
+            <strong>Deploy anywhere</strong>
+            <span>Hybrid cloud · data stays where it lives, compute moves closer to it</span>
+          </Block>
+          <div className="arch-v2-deploy">
+            <div className="arch-v2-deploy-box arch-v2-deploy-box--onprem">
+              <Block st={st} node="deploy-onprem" className="arch-v2-deploy-head">
+                <span className="arch-v2-deploy-icon arch-v2-deploy-icon--server" aria-hidden="true" />
+                {deployment.onPrem.label}
+                <Tag tone="infra">Storage · infrastructure · accelerators</Tag>
+              </Block>
+              <div className="arch-v2-deploy-logos">
+                <Block st={st} node="onprem-obj" className="arch-v2-deploy-tile arch-v2-deploy-tile--cda"><ClouderaMark suffix="Object Store" /></Block>
+                {[["onprem-dell", "dell"], ["onprem-s3", "s3"], ["onprem-nvidia", "nvidia"], ["onprem-amd", "amd"]].map(([id, logo]) => (
+                  <Block key={id} st={st} node={id} className="arch-v2-deploy-tile"><BrandLogo id={logo} /></Block>
+                ))}
+              </div>
             </div>
-          </div>
-          <div className="arch-v2-deploy-box arch-v2-deploy-box--onprem">
-            <Block st={st} node="deploy-onprem" className="arch-v2-deploy-head">
-              <span className="arch-v2-deploy-icon arch-v2-deploy-icon--server" aria-hidden="true" />
-              {deployment.onPrem.label}
-            </Block>
-            <div className="arch-v2-deploy-logos">
-              <Block st={st} node="onprem-obj" className="arch-v2-deploy-tile arch-v2-deploy-tile--cda"><ClouderaMark suffix="Object Store" /></Block>
-              {[["onprem-dell", "dell"], ["onprem-s3", "s3"], ["onprem-nvidia", "nvidia"], ["onprem-amd", "amd"]].map(([id, logo]) => (
-                <Block key={id} st={st} node={id} className="arch-v2-deploy-tile"><BrandLogo id={logo} /></Block>
-              ))}
+
+            <div className="arch-v2-hybrid-bus" aria-label="Hybrid building blocks">
+              <svg className="arch-v2-hybrid-line" viewBox="0 0 300 20" preserveAspectRatio="none" aria-hidden="true">
+                <path d="M 0 10 L 300 10" />
+                <circle r="4" className="arch-v2-pulse arch-v2-pulse--teal">
+                  <animateMotion dur="2.6s" repeatCount="indefinite" path="M 0 10 L 300 10" />
+                </circle>
+                <circle r="4" className="arch-v2-pulse arch-v2-pulse--orange">
+                  <animateMotion dur="2.6s" begin="1.3s" repeatCount="indefinite" path="M 300 10 L 0 10" />
+                </circle>
+              </svg>
+              <div className="arch-v2-hybrid-pills">
+                {HYBRID_PILLS.map(([id, label]) => (
+                  <Block key={id} st={st} node={id} className="arch-v2-hybrid-pill">{label}</Block>
+                ))}
+              </div>
+            </div>
+
+            <div className="arch-v2-deploy-box arch-v2-deploy-box--cloud">
+              <Block st={st} node="deploy-cloud" className="arch-v2-deploy-head">
+                <span className="arch-v2-deploy-icon arch-v2-deploy-icon--cloud" aria-hidden="true" />
+                {deployment.cloud.label}
+                <Tag tone="infra">Cloud providers</Tag>
+              </Block>
+              <div className="arch-v2-deploy-logos">
+                {[["cloud-aws", "aws"], ["cloud-azure", "azure"], ["cloud-gcp", "gcp"]].map(([id, logo]) => (
+                  <Block key={id} st={st} node={id} className="arch-v2-deploy-tile"><BrandLogo id={logo} /></Block>
+                ))}
+              </div>
             </div>
           </div>
         </motion.div>
       </motion.div>
 
+      {tip && !drag.current && (
+        <div className="arch-v2-tip" style={{ left: tip.x, top: tip.y }} role="tooltip">
+          {tip.tag && <em>{tip.tag}</em>}
+          <strong>{tip.name}</strong>
+          <span>{tip.line}</span>
+        </div>
+      )}
+      {govOn && <div className="arch-v2-gov-caption">Governance spans the whole platform: SDX · Apache Atlas · Apache Ranger · Lineage</div>}
+
       <div className="arch-controls">
+        <button type="button" className={`arch-controls-gov${govOn ? " is-on" : ""}`} aria-pressed={govOn} onClick={() => setGovOn((v) => !v)}>
+          Governance
+        </button>
         <button type="button" onClick={() => setScale((s) => Math.min(1.25, s + 0.08))}>+</button>
         <button type="button" onClick={() => setScale((s) => Math.max(0.55, s - 0.08))}>−</button>
         <button type="button" onClick={() => { setScale(0.92); setPan({ x: 0, y: 0 }); }}>↺</button>

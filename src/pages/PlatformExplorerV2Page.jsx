@@ -3,11 +3,9 @@ import { Link } from "react-router-dom";
 import { architectureLegend } from "../data/architecture.js";
 import PlatformArchitectureV2 from "../components/architecture/PlatformArchitectureV2.jsx";
 import ArchitectureSearch from "../components/architecture/ArchitectureSearch.jsx";
-import { useKioskIdle } from "../hooks/useKioskIdle.js";
 
 export default function PlatformExplorerV2Page() {
   const [search, setSearch] = useState("");
-  useKioskIdle(90000, true);
 
   return (
     <div className="explorer-page explorer-page--v2">

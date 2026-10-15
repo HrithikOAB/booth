@@ -1,5 +1,5 @@
 // Component registry: one entry per clickable item in the umbrella architecture.
-import { CATEGORIES, ORIGINS, VIEW_META, finalizeComponent } from "./schema.js";
+import { CATEGORIES, ORIGINS, VIEW_META, BOOTH_VIEW_META, STATUSES, OWNERSHIP, microFor, finalizeComponent } from "./schema.js";
 import nodeMap from "./nodeMap.js";
 import { resourcesFor } from "./resources.js";
 import clouderaServices from "./components/cloudera-services.js";
@@ -9,8 +9,11 @@ import partners from "./components/partners.js";
 import governance from "./components/governance.js";
 import infrastructure from "./components/infrastructure.js";
 import flows from "./components/flows.js";
+import boothOverlay from "./booth.js";
 
-const rawList = [...clouderaServices, ...platform, ...engines, ...partners, ...governance, ...infrastructure, ...flows];
+const rawList = [...clouderaServices, ...platform, ...engines, ...partners, ...governance, ...infrastructure, ...flows].map((c) =>
+  boothOverlay[c.id] ? { ...c, booth: { ...boothOverlay[c.id], ...c.booth } } : c,
+);
 
 const rawById = Object.fromEntries(rawList.map((c) => [c.id, c]));
 
@@ -52,4 +55,9 @@ export const SERVICE_REDIRECTS = {
   anywhere: "cloudera-anywhere-cloud",
 };
 
-export { CATEGORIES, ORIGINS, VIEW_META, nodeMap, resourcesFor };
+/** Diagram ids on the Level-1 map for a component — used to return to the right spot. */
+export function primaryNodeFor(componentId) {
+  return Object.entries(nodeMap).find(([, v]) => v.id === componentId)?.[0] ?? null;
+}
+
+export { CATEGORIES, ORIGINS, VIEW_META, BOOTH_VIEW_META, STATUSES, OWNERSHIP, microFor, nodeMap, resourcesFor };

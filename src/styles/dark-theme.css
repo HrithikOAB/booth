@@ -1,0 +1,174 @@
+/* ============================================================
+   Dark theme — loaded last. Activated by <html class="theme-dark">.
+   Cloudera navy surfaces, white text, orange stays the accent.
+   Most rules re-point design tokens; the rest override the few
+   light values that are still hard-coded in earlier stylesheets.
+   ============================================================ */
+.theme-dark {
+  color-scheme: dark;
+
+  /* booth.css tokens */
+  --bg-main: #0b1622;
+  --bg-secondary: #101e2b;
+  --bg-panel: #132434;
+  --cloudera-blue: #6fa8e8;
+  --cloudera-blue-light: #15283a;
+  --cloudera-blue-mid: #2a4763;
+  --cac-orange-light: #2a1a12;
+  --cac-orange-mid: #6b3a20;
+  --text-primary: #e6edf5;
+  --text-secondary: #93a6b9;
+  --text-strong: #d3dde7;
+  --border-subtle: #26394b;
+  --shadow-soft: 0 4px 24px rgba(0, 0, 0, 0.4);
+
+  /* light-theme.css tokens */
+  --lt-bg: #0b1622;
+  --lt-surface: #132434;
+  --lt-subtle: #101e2b;
+  --lt-line: #26394b;
+  --lt-line-strong: #34506a;
+  --lt-text: #e6edf5;
+  --lt-muted: #93a6b9;
+  --lt-orange-text: #ff8a57;
+  --lt-blue: #6fa8e8;
+  --lt-teal: #4fd1c5;
+  --lt-shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 4px 16px rgba(0, 0, 0, 0.35);
+  --lt-shadow-hover: 0 10px 28px rgba(0, 0, 0, 0.5);
+  --shell-bg: #0b1622;
+  --shell-bg-2: #0e1a26;
+  --shell-line: #26394b;
+  --shell-text: #e6edf5;
+  --shell-muted: #93a6b9;
+  --focus-ring: 0 0 0 2px #0b1622, 0 0 0 4px #ff8a4c;
+
+  /* stage.css tokens */
+  --st-navy: #1d3b5e;
+  --st-heading: #f1f5f9;
+  --st-ink: #e6edf5;
+  --st-body: #c5d2de;
+  --st-muted: #93a6b9;
+  --st-line: #26394b;
+  --st-bg: #0b1622;
+  --st-surface: #132434;
+  --st-surface-2: #101e2b;
+  --st-orange-text: #ff8a57;
+  --st-blue: #6fa8e8;
+  --k-cloudera: #ff7a45;
+  --k-oss: #6fa0d8;
+  --k-gov: #a294f2;
+  --k-data: #2fc0b5;
+  --k-store: #4fbf86;
+  --k-cloud: #5aa9e6;
+  --k-partner: #9aa7b4;
+  --k-infra: #a0a8b4;
+  --k-core: #9fb0c2;
+}
+
+/* ---------- shell ---------- */
+.theme-dark .app-nav { background: rgba(11, 22, 34, 0.96); box-shadow: 0 1px 0 var(--lt-line), 0 6px 20px rgba(0, 0, 0, 0.35); }
+.theme-dark .app-nav-search kbd, .theme-dark .cmdk-foot kbd { background: #0b1622; }
+.theme-dark .app-nav-search:hover { background: #132434; }
+.theme-dark .cmdk { background: #101e2b; box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6); }
+.theme-dark .cmdk-backdrop { background: rgba(0, 0, 0, 0.55); }
+.theme-dark .explorer-page .arch-canvas-wrap,
+.theme-dark .explorer-page--v2 .arch-canvas-wrap { background: #0b1622; }
+.theme-dark .explorer-toolbar { background: #0e1a26; }
+
+/* ---------- pages (catalog, coverage, industries list) ---------- */
+.theme-dark .cp-hero { background: radial-gradient(circle at 95% -30%, rgba(242, 102, 45, 0.18), transparent 45%), linear-gradient(160deg, #132434, #101e2b); }
+.theme-dark .cp-tagline, .theme-dark .cp-lead, .theme-dark .cp-card p, .theme-dark .cp-list li { color: #c5d2de; }
+.theme-dark .cov-table-wrap,
+.theme-dark .page-scroll .industry-module { background: #132434; }
+.theme-dark .ind-uc.is-on { background: linear-gradient(160deg, rgba(242, 102, 45, 0.16), #132434 70%); }
+.theme-dark .badge--blue { color: #9cc4f0; }
+.theme-dark .badge--slate { color: #c5d2de; border-color: #34506a; background: #15283a; }
+.theme-dark .badge--violet { color: #c4b8ff; }
+
+/* ---------- Level 1 diagram ---------- */
+.theme-dark .arch-v2-viewport { background: radial-gradient(1200px 600px at 50% -10%, #15283a 0%, #0e1b28 55%, #0b1622 100%); }
+.theme-dark .arch-v2-frame--base { background: linear-gradient(180deg, #132434 0%, #11223a 60%, #0f1e33 100%); border-color: #4a7fc9; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35); }
+.theme-dark .arch-v2-frame--cac { background: linear-gradient(180deg, #172230 0%, #1c1a1a 100%); }
+.theme-dark .arch-v2-svc--base { color: #9cc4f0; border-color: #2f5a8a; }
+.theme-dark .arch-v2-svc--cac { color: #ff9a66; }
+.theme-dark .arch-v2-band,
+.theme-dark .arch-v2-hybrid,
+.theme-dark .arch-v2-deploy-box { background: #101e2b; border-color: #26394b; }
+.theme-dark .arch-v2-platform--base { background: #101e2b; }
+.theme-dark .arch-v2-platform-cell:not(.arch-v2-platform-cell--sdx) { background: #15283a; }
+.theme-dark .arch-v2-fabric { background: #1f1712; }
+.theme-dark .arch-v2-fabric-title { color: #ff9a66; }
+.theme-dark .arch-v2-pillar-head--blue strong,
+.theme-dark .arch-v2-pillar-head span,
+.theme-dark .cda-mark__suffix { color: #9cc4f0; }
+.theme-dark .arch-v2-cac-head span { color: var(--text-secondary); }
+.theme-dark .arch-v2-tag { background: #0e1a26; }
+.theme-dark .arch-v2-hybrid-pill { background: #0e1a26; color: #4fd1c5; border-color: rgba(79, 209, 197, 0.45); }
+.theme-dark .arch-v2-hybrid-pill:hover,
+.theme-dark .arch-v2-hybrid-pill.is-active { background: #0f8a83; color: #fff; }
+.theme-dark .arch-v2-hybrid-line path { stroke: #2fc0b5; }
+.theme-dark .arch-controls button { background: #132434; color: #e6edf5; border-color: #26394b; }
+.theme-dark .arch-controls .arch-controls-gov { color: #c4b8ff; }
+.theme-dark .arch-controls .arch-controls-gov.is-on { background: #6d5ce0; border-color: #6d5ce0; color: #fff; }
+.theme-dark .arch-v2-viewport.is-gov .arch-v2-block[data-node]:not(.is-dimmed):not(.arch-v2-bridge) { box-shadow: 0 0 0 2px rgba(162, 148, 242, 0.7), 0 10px 24px -10px rgba(162, 148, 242, 0.5); }
+.theme-dark .arch-v2-gov-caption { background: #6d5ce0; }
+.theme-dark .arch-v2-tip,
+.theme-dark .arch-v2-tip::after { background: #1d3b5e; }
+.theme-dark .eng-brand--gcp, .theme-dark .eng-brand--aws { color: #e6edf5; }
+.theme-dark .eng-brand--nvidia { color: #8cc63f; }
+
+/* ---------- architecture canvas ---------- */
+.theme-dark .ac {
+  --ac-bg: #0d1a27;
+  --ac-panel: #101e2b;
+  --ac-card: #152737;
+  --ac-line: #26394b;
+  --ac-text: #e6edf5;
+  --ac-muted: #93a6b9;
+  --ac-blue: #6fa8e8;
+  --ac-teal: #4fd1c5;
+  --ac-violet: #a294f2;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+.theme-dark .ac-flow { background-color: #0d1a27; background-image: radial-gradient(rgba(255, 255, 255, 0.06) 1px, transparent 1px); }
+.theme-dark .an { box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35); }
+.theme-dark .an:hover { box-shadow: 0 10px 24px rgba(0, 0, 0, 0.45); }
+.theme-dark .an--focus,
+.theme-dark .an--booth.an--focus { background: linear-gradient(150deg, #2a1d17, #152737 70%); border-color: rgba(242, 102, 45, 0.6); }
+.theme-dark .an--security { background: linear-gradient(160deg, #1d1a33, #152737); }
+.theme-dark .an--partner { background: transparent; }
+.theme-dark .ag { background: rgba(21, 39, 55, 0.7); }
+.theme-dark .ac .react-flow__edge-path.pe { stroke: #5d7488; }
+.theme-dark .pe-label { background: rgba(13, 26, 39, 0.95); }
+.theme-dark .ac-narration { background: rgba(16, 30, 43, 0.96); }
+.theme-dark .ac-tracebar { background: rgba(16, 30, 43, 0.97); border-color: rgba(79, 209, 197, 0.4); }
+.theme-dark .ac-tracebar li { color: #6b8196; }
+.theme-dark .ac-tracebar li.done { color: #4fd1c5; }
+.theme-dark .ac-tracebar-label { color: #4fd1c5; }
+.theme-dark .ac--booth .ac-bar .ac-trace { color: #4fd1c5; border-color: rgba(79, 209, 197, 0.45); background: rgba(79, 209, 197, 0.08); }
+.theme-dark .ac--booth .ac-hint { color: #6b8196; }
+.theme-dark .ac .react-flow__minimap-mask { fill: rgba(11, 22, 34, 0.75); }
+
+/* ---------- Level 2 stage, panels, modals, drawer ---------- */
+.theme-dark .st {
+  background:
+    radial-gradient(1100px 420px at 100% -10%, rgba(242, 102, 45, 0.1), transparent 60%),
+    radial-gradient(900px 420px at 0% -10%, rgba(43, 108, 176, 0.14), transparent 60%),
+    var(--st-bg);
+}
+.theme-dark .st-back,
+.theme-dark .st-dock-btn,
+.theme-dark .nmp,
+.theme-dark .sm { box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35); }
+.theme-dark .st-dock-btn--watch { background: var(--st-orange); border-color: var(--st-orange); color: #fff; }
+.theme-dark .st-badge--orange { color: #ff9a66; }
+.theme-dark .st-badge--blue { color: #9cc4f0; }
+.theme-dark .st-badge--violet { color: #c4b8ff; }
+.theme-dark .st-badge--teal { color: #4fd1c5; }
+.theme-dark .st-badge--slate { color: #c5d2de; border-color: #34506a; }
+.theme-dark .st-crumbs li + li::before { color: #4f6378; }
+.theme-dark .nmp-path li + li::before { color: #4f6378; }
+.theme-dark .sm-backdrop, .theme-dark .vd-backdrop { background: rgba(0, 0, 0, 0.6); }
+.theme-dark .dm .sm-close { background: #101e2b; }
+.theme-dark .vd { box-shadow: -24px 0 60px rgba(0, 0, 0, 0.55); }
+.theme-dark .vd-head { background: #0e1a26; border-bottom: 1px solid #26394b; }

@@ -5,7 +5,6 @@ import { serviceById } from "../data/services.js";
 import { getWorkflow } from "../data/workflows.js";
 import ServiceWorkflowDiagram from "../components/workflow/ServiceWorkflowDiagram.jsx";
 import ServiceDetailModal from "../components/service/ServiceDetailModal.jsx";
-import { useKioskIdle } from "../hooks/useKioskIdle.js";
 
 export default function ServiceWorkflowPage() {
   const { serviceId } = useParams();
@@ -14,7 +13,6 @@ export default function ServiceWorkflowPage() {
   const workflow = useMemo(() => (service ? getWorkflow(serviceId) : null), [service, serviceId]);
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedStep, setSelectedStep] = useState(null);
-  useKioskIdle(90000, true);
 
   useEffect(() => {
     if (!service || !workflow) navigate("/explore/v2", { replace: true });

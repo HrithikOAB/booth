@@ -2,12 +2,24 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { highlightSetForNode } from "../../data/architectureBlueprint.js";
 import { nodeMap, resolveNode, routeForNode } from "../../data/registry/index.js";
+import { rememberZoomOrigin } from "../stage/zoomOrigin.js";
+
+/** Diagram ids of the components a node's component integrates with (its architecture paths). */
+function relatedNodeIds(nodeId) {
+  const c = resolveNode(nodeId)?.component;
+  if (!c) return [];
+  const rel = new Set(c.relatedComponentIds ?? []);
+  return Object.entries(nodeMap)
+    .filter(([, v]) => rel.has(v.id))
+    .map(([k]) => k);
+}
 
 /**
  * Shared state for the umbrella diagrams: hover highlight, `?focus=` deep link,
  * registry-backed search and navigation to component pages.
+ * `overlayIds` (e.g. the governance overlay) highlights a fixed set while no node is hovered.
  */
-export function useDiagramState(searchQuery = "") {
+export function useDiagramState(searchQuery = "", overlayIds = null) {
   const navigate = useNavigate();
   const [params] = useSearchParams();
   const focusId = params.get("focus");
@@ -23,7 +35,7 @@ export function useDiagramState(searchQuery = "") {
   }, [focusId]);
 
   const highlightIds = useMemo(() => {
-    const set = hoverId ? new Set(highlightSetForNode(hoverId)) : new Set();
+    const set = hoverId ? new Set([...highlightSetForNode(hoverId), ...relatedNodeIds(hoverId)]) : new Set(overlayIds ?? []);
     if (q) {
       Object.keys(nodeMap).forEach((nodeId) => {
         const c = resolveNode(nodeId)?.component;
@@ -33,12 +45,14 @@ export function useDiagramState(searchQuery = "") {
       });
     }
     return set.size ? set : null;
-  }, [hoverId, q]);
+  }, [hoverId, q, overlayIds]);
 
   const go = useCallback(
     (nodeId) => {
       const to = routeForNode(nodeId);
-      if (to) navigate(to);
+      if (!to) return;
+      rememberZoomOrigin(document.querySelector(`[data-node="${CSS.escape(nodeId)}"]`));
+      navigate(to);
     },
     [navigate]
   );

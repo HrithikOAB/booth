@@ -1,69 +1,74 @@
 # Cloudera Component Explorer — coverage report
 
-Generated 2026-10-02 by `npm run verify`.
+Generated 2026-10-15 by `npm run verify`.
 
 ## Summary
 
-- Components with pages: **50** (48 pass every check)
-- Diagram elements mapped: **47** in nodeMap, **46** clickable ids found in the two diagrams
-- Verified documentation links: **90 / 90**
+- Components with pages: **55** (52 pass every check)
+- Diagram elements mapped: **52** in nodeMap, **51** clickable ids found in the two diagrams
+- Verified documentation links: **111 / 111**
 - Industry use cases with interactive architecture + lifecycle: **24** across 6 industries
 - Hard failures: **0**
 
 ## Completion matrix
 
-| Component | Overview | Internal arch (≥5 nodes) | Workflow (≥4 stages) | Inputs / outputs / APIs | Data flow | Deployment | Security & ops | Cloudera context | Use cases | Verified resources | Media | Docs ✓ | Videos |
-|---|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
-| Cloudera AI | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 4/4 | 3 |
-| Cloudera Data Engineering | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 2/2 | 2 |
-| Cloudera Data Lakehouse | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 3/3 | 2 |
-| Cloudera Data Flow | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 1/1 | 3 |
-| Cloudera Data Warehouse | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 1/1 | 2 |
-| Cloudera Agent Studio | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 2/2 | 2 |
-| Cloudera Data Services 2.0 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 2/2 | 1 |
-| Data Engineering 2.0 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 2/2 | 1 |
-| Data Lakehouse 2.0 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 2/2 | 1 |
-| AI 2.0 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 2/2 | 1 |
-| Data Flow 2.0 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 1/1 | 1 |
-| Cloudera Base / Data Services 1.5.x | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 2/2 | 1 |
-| Cloudera Manager | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ | 1/1 | 0 |
-| Cloudera Platform | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 1/1 | 1 |
-| Cloudera Object Store | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 2/2 | 1 |
-| Cloudera SDX | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 2/2 | 2 |
-| Cloudera Data Lineage | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 3/3 | 3 |
-| Unified Data Fabric | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 3/3 | 1 |
-| Cloudera Anywhere Cloud | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 3/3 | 2 |
-| Apache Spark | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 1/1 | 1 |
-| Apache Spark 4.0 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 2/2 | 1 |
-| Apache NiFi | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 1/1 | 1 |
-| Apache Kafka | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 1/1 | 1 |
-| Trino | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 2/2 | 1 |
-| Apache Iceberg | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 3/3 | 1 |
-| Apache Flink | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 1/1 | 1 |
-| Apache Impala | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 1/1 | 2 |
-| Apache Hive & Hive Metastore | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 1/1 | 1 |
-| Apache Airflow | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 1/1 | 1 |
-| Neo4j | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 1/1 | 1 |
-| StarRocks | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 1/1 | 1 |
-| ClickHouse | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 1/1 | 1 |
-| Apache Atlas | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 1/1 | 2 |
-| Apache Ranger | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 2/2 | 2 |
-| Metadata Management | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 2/2 | 1 |
-| Data Lineage (capability) | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 2/2 | 1 |
-| Access Control | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 2/2 | 1 |
-| Security Policies & Auditing | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 2/2 | 1 |
-| Google Cloud | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 2/2 | 1 |
-| Microsoft Azure | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 2/2 | 1 |
-| Amazon Web Services | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 2/2 | 1 |
-| S3 / S3-compatible Storage | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 2/2 | 1 |
-| Dell Technologies | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 1/1 | 1 |
-| NVIDIA | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 3/3 | 2 |
-| AMD | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ | 1/1 | 0 |
-| On-Premises Deployment | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 2/2 | 2 |
-| Cloud Deployment | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 2/2 | 1 |
-| Seamless Transition of Jobs | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 2/2 | 1 |
-| Cloudera Engines Can Query Across Platforms | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 2/2 | 1 |
-| Independent or Integrated Data | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 2/2 | 1 |
+| Component | Overview | Internal arch (≥5 nodes) | Workflow (≥4 stages) | Inputs / outputs / APIs | Data flow | Deployment | Security & ops | Cloudera context | Use cases | Verified resources | Media | Booth-ready | Docs ✓ | Videos |
+|---|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
+| Cloudera AI | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 6/6 | 3 |
+| Cloudera AI Workbench | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 3/3 | 1 |
+| Cloudera AI Studios | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 2/2 | 2 |
+| Cloudera AI Inference service | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 3/3 | 1 |
+| Cloudera Data Engineering | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 3/3 | 1 |
+| Cloudera Data Lakehouse | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 3/3 | 1 |
+| Cloudera Data Flow | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 3/3 | 1 |
+| Cloudera Data Warehouse | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 2/2 | 1 |
+| Cloudera Agent Studio | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 2/2 | 1 |
+| Cloudera Data Services 2.0 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 2/2 | 1 |
+| Data Engineering 2.0 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 2/2 | 1 |
+| Data Lakehouse 2.0 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 2/2 | 1 |
+| AI 2.0 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 2/2 | 1 |
+| Data Flow 2.0 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 1/1 | 1 |
+| Cloudera Base / Data Services 1.5.x | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 2/2 | 1 |
+| Cloudera Manager | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ | ✅ | 2/2 | 0 |
+| Cloudera Platform | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 1/1 | 1 |
+| Cloudera Object Store | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 3/3 | 1 |
+| Cloudera SDX | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 2/2 | 1 |
+| Cloudera Data Lineage | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 3/3 | 2 |
+| Unified Data Fabric | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 3/3 | 1 |
+| Cloudera Anywhere Cloud | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 3/3 | 1 |
+| Hybrid Cloud | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 2/2 | 1 |
+| Apache Spark | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 1/1 | 1 |
+| Apache Spark 4.0 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 2/2 | 1 |
+| Apache NiFi | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 1/1 | 1 |
+| Apache Kafka | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 1/1 | 1 |
+| Trino | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 2/2 | 1 |
+| Apache Iceberg | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 3/3 | 1 |
+| Apache Flink | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 1/1 | 1 |
+| Apache Impala | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 1/1 | 2 |
+| Apache Hive & Hive Metastore | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 1/1 | 1 |
+| Apache Airflow | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 1/1 | 1 |
+| Apache HBase | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ | ✅ | 2/2 | 0 |
+| Neo4j | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 1/1 | 1 |
+| StarRocks | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 1/1 | 1 |
+| ClickHouse | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 1/1 | 1 |
+| Apache Atlas | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 1/1 | 1 |
+| Apache Ranger | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 2/2 | 2 |
+| Metadata Management | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 2/2 | 1 |
+| Data Lineage (capability) | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 2/2 | 1 |
+| Access Control | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 2/2 | 1 |
+| Security Policies & Auditing | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 2/2 | 1 |
+| Google Cloud | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 2/2 | 1 |
+| Microsoft Azure | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 2/2 | 1 |
+| Amazon Web Services | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 2/2 | 1 |
+| S3 / S3-compatible Storage | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 2/2 | 1 |
+| Dell Technologies | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 1/1 | 1 |
+| NVIDIA | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 3/3 | 1 |
+| AMD | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ | ✅ | 2/2 | 0 |
+| On-Premises Deployment | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 2/2 | 2 |
+| Cloud Deployment | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 2/2 | 1 |
+| Seamless Transition of Jobs | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 2/2 | 1 |
+| Cloudera Engines Can Query Across Platforms | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 2/2 | 1 |
+| Independent or Integrated Data | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 2/2 | 1 |
 
 ## Diagram element → page
 
@@ -106,6 +111,11 @@ Generated 2026-10-02 by `npm run verify`.
 | `gov-metadata` | `/component/metadata-management` |
 | `gov-ranger` | `/component/apache-ranger` |
 | `gov-security` | `/component/access-control` |
+| `hybrid-auth` | `/component/hybrid-cloud?context=auth` |
+| `hybrid-core` | `/component/hybrid-cloud` |
+| `hybrid-meta` | `/component/hybrid-cloud?context=meta` |
+| `hybrid-net` | `/component/hybrid-cloud?context=net` |
+| `hybrid-port` | `/component/hybrid-cloud?context=port` |
 | `onprem-amd` | `/component/amd` |
 | `onprem-dell` | `/component/dell-technologies` |
 | `onprem-nvidia` | `/component/nvidia` |
@@ -150,6 +160,7 @@ Generated 2026-10-02 by `npm run verify`.
 Content checks not met:
 
 - **Cloudera Manager**: missing Media
+- **Apache HBase**: missing Media
 - **AMD**: missing Media
 
 Verification flags:

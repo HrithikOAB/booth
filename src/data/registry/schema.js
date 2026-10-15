@@ -18,6 +18,18 @@
 //    node  = [id, label, description?, kind?, ref?]  or
 //            { id, label, description, kind, ref, children: [node...], childEdges: [edge...] }
 //    edge  = [source, target, label?, { dashed?, kind? }?]
+//            kind: "data" (solid arrow, default) | "control" (dashed) |
+//                  "bi" (double arrow) | "optional" (dotted)
+//
+//  Optional booth block (defaults derived in finalizeComponent):
+//  booth: {
+//    oneLiner, status, ownership,
+//    nodes: { [nodeId]: { micro, path[], video } },   // micro text ≤ 3 sentences
+//    trace: { label, nodes[] },                       // ids in views.internal
+//    traceFrom: [nodeId],                             // ?context=<nodeId> starts the trace
+//    officialArchitecture, officialProductPage, deploymentModels[],
+//    verificationDate, unverified[]                   // unverified is never rendered
+//  }
 // ============================================================
 
 export const ORIGINS = {
@@ -57,12 +69,19 @@ export function normNode(n) {
   };
 }
 
+export const EDGE_KINDS = ["data", "control", "bi", "optional"];
+
+function withKind(edge) {
+  const kind = EDGE_KINDS.includes(edge.kind) ? edge.kind : edge.dashed ? "control" : "data";
+  return { ...edge, kind, dashed: kind === "control" };
+}
+
 export function normEdge(e, i = 0) {
   if (Array.isArray(e)) {
     const [source, target, label, opts = {}] = e;
-    return { id: `e-${source}-${target}-${i}`, source, target, label, ...opts };
+    return withKind({ id: `e-${source}-${target}-${i}`, source, target, label, ...opts });
   }
-  return { id: e.id ?? `e-${e.source}-${e.target}-${i}`, ...e };
+  return withKind({ id: e.id ?? `e-${e.source}-${e.target}-${i}`, ...e });
 }
 
 export function normView(view) {
@@ -124,7 +143,7 @@ export function integrationView(component, componentById) {
         kind: kindForOrigin(componentById[id].origin),
       })),
     ],
-    edges: rel.map((id, i) => normEdge([component.id, id], i)),
+    edges: rel.map((id, i) => normEdge([component.id, id, undefined, { kind: "bi" }], i)),
   };
 }
 
@@ -162,6 +181,81 @@ export const VIEW_META = [
   { id: "security", label: "Security" },
 ];
 
+/** The three booth tabs. Other authored views stay in data but are not tabs. */
+export const BOOTH_VIEW_META = [
+  { id: "internal", label: "Architecture" },
+  { id: "workflow", label: "Workflow", playback: true },
+  { id: "integration", label: "Integrations" },
+];
+
+export const STATUSES = {
+  current: { label: "Current product" },
+  historical: { label: "Historical name" },
+  "reference-architecture": { label: "Reference architecture terminology" },
+  ecosystem: { label: "Ecosystem" },
+  partner: { label: "Partner" },
+};
+
+export const OWNERSHIP = {
+  cloudera: { label: "Cloudera", tone: "orange" },
+  "cloudera-capability": { label: "Cloudera capability", tone: "violet" },
+  "open-source": { label: "Open source", tone: "blue" },
+  partner: { label: "Partner · ecosystem", tone: "slate" },
+  "cloud-provider": { label: "Cloud provider", tone: "teal" },
+  infrastructure: { label: "Infrastructure", tone: "slate" },
+  storage: { label: "Storage", tone: "teal" },
+  deployment: { label: "Deployment model", tone: "teal" },
+  reference: { label: "Reference architecture", tone: "violet" },
+};
+
+function defaultOwnership(raw) {
+  if (raw.origin === "cloudera") return "cloudera";
+  if (raw.origin === "apache-oss" || raw.origin === "open-source") return "open-source";
+  if (raw.origin === "partner") return "partner";
+  if (raw.origin === "cloud-provider") return "cloud-provider";
+  if (raw.origin === "hardware-vendor") return "infrastructure";
+  if (raw.origin === "flow") return "reference";
+  if (raw.category === "infrastructure") return raw.id.includes("storage") ? "storage" : "deployment";
+  return "cloudera-capability";
+}
+
+function defaultStatus(raw) {
+  if (raw.category === "cds-2" || raw.category === "flows") return "reference-architecture";
+  if (raw.origin === "partner") return "partner";
+  if (["apache-oss", "open-source", "cloud-provider", "hardware-vendor"].includes(raw.origin)) return "ecosystem";
+  if (raw.id === "s3-storage") return "ecosystem";
+  return "current";
+}
+
+/** First `n` sentences of a string — node descriptions become booth micro text. */
+export function sentences(text = "", n = 2) {
+  const parts = text.match(/[^.!?]+[.!?]+(\s|$)|[^.!?]+$/g) ?? [];
+  return parts.slice(0, n).join("").trim();
+}
+
+function finalizeBooth(raw) {
+  const b = raw.booth ?? {};
+  return {
+    oneLiner: b.oneLiner ?? raw.tagline,
+    status: b.status ?? defaultStatus(raw),
+    ownership: b.ownership ?? defaultOwnership(raw),
+    nodes: b.nodes ?? {},
+    trace: b.trace ?? null,
+    traceFrom: b.traceFrom ?? [],
+    officialArchitecture: b.officialArchitecture ?? null,
+    officialProductPage: b.officialProductPage ?? null,
+    deploymentModels: b.deploymentModels ?? [],
+    verificationDate: b.verificationDate ?? null,
+    unverified: b.unverified ?? [],
+  };
+}
+
+/** Booth micro text for a node: authored override, else the first sentences of its description. */
+export function microFor(component, node) {
+  const o = component?.booth?.nodes?.[node.id];
+  return { micro: o?.micro ?? sentences(node.description, 2), path: o?.path ?? null, video: o?.video ?? null };
+}
+
 /** Finalize a raw entry: normalize views and derive the route. */
 export function finalizeComponent(raw, componentById) {
   const views = {};
@@ -175,6 +269,7 @@ export function finalizeComponent(raw, componentById) {
   return {
     ...raw,
     route: `/component/${raw.id}`,
+    booth: finalizeBooth(raw),
     workflow: raw.workflow ? { ...raw.workflow, stages: raw.workflow.stages.map(normStage) } : null,
     views,
   };

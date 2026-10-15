@@ -23,7 +23,7 @@ for (const f of diagramFiles) {
   for (const m of src.matchAll(/\b(?:nodeId|node)="([^"]+)"/g)) literalIds.add(m[1]);
   for (const m of src.matchAll(/\["((?:cloud|onprem|eng|gov)-[a-z0-9-]+)",/g)) literalIds.add(m[1]);
 }
-["base-ai", "base-de", "base-dl", "base-df", "cac-de2", "cac-dl2", "cac-ai2", "cac-df2", "p-neo4j", "p-starrocks", "p-clickhouse", "flow-jobs", "flow-query", "flow-data"].forEach((id) => literalIds.add(id));
+["base-ai", "base-de", "base-dl", "base-df", "cac-de2", "cac-dl2", "cac-ai2", "cac-df2", "p-neo4j", "p-starrocks", "p-clickhouse", "flow-jobs", "flow-query", "flow-data", "hybrid-auth", "hybrid-meta", "hybrid-net", "hybrid-port"].forEach((id) => literalIds.add(id));
 const diagramRows = [...literalIds].sort().map((id) => {
   const r = resolveNode(id);
   if (!r) failures.push(`Diagram element "${id}" has no component page`);
@@ -33,6 +33,8 @@ const diagramRows = [...literalIds].sort().map((id) => {
 // 2. Dangling references inside component content.
 cov.rows.filter((r) => r.dangling.length).forEach((r) => failures.push(`${r.id}: dangling refs ${r.dangling.join(", ")}`));
 cov.unmappedNodes.forEach((n) => failures.push(`nodeMap "${n}" points at a missing component`));
+// Booth rules are hard failures: a booth page must never show a long one-liner or a broken trace.
+cov.rows.forEach((r) => r.boothProblems.forEach((p) => failures.push(`${r.id}: booth — ${p}`)));
 
 // 3. Industry architectures: every ref resolves; every use case has ≥4 lifecycle stages.
 const industryRows = [];

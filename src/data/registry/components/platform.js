@@ -40,7 +40,7 @@ const base = {
       edges: [["nifi", "kafka"], ["nifi", "obj"], ["kafka", "spark"], ["spark", "obj"], ["obj", "sql"], ["obj", "ai"]],
     },
     deployment: {
-      nodes: [["dc", "Customer data center", "Bare metal / VMs.", "cloudera", "on-premises-deployment"], ["base", "Base cluster", "Runtime hosts.", "focus"], ["k8s", "ECS / OpenShift", "Kubernetes for Data Services.", "core"], ["hw", "Dell / NVIDIA hardware", "Certified infrastructure.", "vendor", "dell-technologies"]],
+      nodes: [["dc", "Customer data center", "Bare metal / VMs.", "cloudera", "on-premises-deployment"], ["base", "Base cluster", "Runtime hosts.", "focus"], ["k8s", "ECS / OpenShift", "Kubernetes for Data Services.", "core"], ["hw", "Dell / NVIDIA hardware", "Customer-chosen infrastructure.", "vendor", "dell-technologies"]],
       edges: [["dc", "base"], ["dc", "k8s"], ["k8s", "base", "shares Data Lake"], ["hw", "dc", "", { dashed: true }]],
     },
   },
@@ -48,7 +48,11 @@ const base = {
   ops: { security: "Kerberos, LDAP, TLS, Ranger, encryption at rest.", governance: "Atlas and Cloudera Data Lineage.", monitoring: "Cloudera Manager and Observability.", scalability: "Add hosts; Data Services autoscale on Kubernetes." },
   clouderaContext: { standalone: "A Cloudera product built from Apache projects.", clouderaIntegration: "The foundation of the Cloudera umbrella and source side of the connector flows to Anywhere Cloud.", realWorld: "A bank's multi-petabyte Base cluster keeps running regulatory batch while new AI workloads start in Anywhere Cloud." },
   useCases: [{ title: "Enterprise data platform", scenario: "Run governed analytics on premises.", industryIds: ["financial", "telco", "healthcare"] }],
-  relatedComponentIds: ["cloudera-manager", "cloudera-platform", "cloudera-sdx", "cloudera-object-store", "cloudera-anywhere-cloud"],
+  relatedComponentIds: ["cloudera-manager", "cloudera-platform", "cloudera-sdx", "cloudera-object-store", "cloudera-anywhere-cloud", "hybrid-cloud"],
+  booth: {
+    oneLiner: "The established Cloudera platform: Base clusters plus containerized Data Services.",
+    trace: { label: "Services on one platform", nodes: ["svcs", "engines", "platform", "obj"] },
+  },
 };
 
 const manager = {
@@ -74,8 +78,27 @@ const manager = {
   },
   views: {
     internal: {
-      nodes: [["admin", "Admin UI / API", "", "client"], ["server", "CM Server", "Control plane.", "focus"], ["db", "CM database", "Configuration and state.", "store"], ["mgmt", "Management services", "Metrics, events, alerts.", "core"], { id: "agents", label: "Host agents", kind: "core", description: "One per host.", children: [["h1", "Host 1 roles", ""], ["h2", "Host 2 roles", ""]], childEdges: [] }, ["parcels", "Parcel repository", "Runtime software.", "store"]],
-      edges: [["admin", "server"], ["server", "db"], ["server", "agents", "heartbeat"], ["agents", "mgmt", "metrics"], ["parcels", "agents", "distribute", { dashed: true }]],
+      nodes: [
+        ["admin", "Admin Console", "Web UI administrators use to manage clusters.", "client"],
+        ["api", "Cloudera Manager API", "For custom applications and automation.", "client"],
+        { id: "server", label: "Cloudera Manager Server", kind: "focus", description: "Hosts the console, API and application logic; installs, configures, starts and stops services.",
+          children: [["config", "Configuration", "Pushes configuration to hosts."], ["lifecycle", "Install & lifecycle", "Installs software; starts and stops services."]],
+          childEdges: [] },
+        ["db", "Database", "Stores configuration and monitoring information.", "store"],
+        ["mgmt", "Management Service", "Roles for monitoring, alerting and reporting.", "core"],
+        ["repo", "Cloudera Repository", "Software distributed by Cloudera Manager.", "store"],
+        ["agents", "Agents (one per host)", "Start and stop processes, unpack configuration, monitor the host.", "core"],
+        ["services", "Cluster services", "Cloudera Runtime services running on the hosts.", "cloudera", "cloudera-platform"],
+      ],
+      edges: [
+        ["admin", "server"],
+        ["api", "server"],
+        ["server", "db", "state"],
+        ["repo", "server", "software", { kind: "optional" }],
+        ["server", "agents", "heartbeat", { kind: "bi" }],
+        ["agents", "services", "start / stop", { kind: "control" }],
+        ["agents", "mgmt", "metrics"],
+      ],
     },
     dataFlow: {
       nodes: [["agent", "Agent", "Collects metrics.", "core"], ["mgmt", "Service Monitor", "Stores time series.", "core"], ["health", "Health tests", "Evaluate state.", "core"], ["alerts", "Alerts", "Notify admins.", "client"]],
@@ -91,6 +114,19 @@ const manager = {
   clouderaContext: { standalone: "A Cloudera product; not open source.", clouderaIntegration: "The management layer of Cloudera Base, shown below the engines in the diagram.", realWorld: "An admin rolls a security patch across 400 nodes with a rolling restart during business hours." },
   useCases: [{ title: "Zero-downtime upgrades", scenario: "Rolling upgrade of Runtime.", industryIds: ["financial", "telco"] }],
   relatedComponentIds: ["cloudera-base-datahub", "cloudera-platform", "cloudera-sdx"],
+  booth: {
+    oneLiner: "Install, configure, monitor and upgrade Cloudera clusters from one console.",
+    trace: { label: "One heartbeat", nodes: ["admin", "server", "agents", "services"] },
+    nodes: {
+      server: { micro: "The heart of Cloudera Manager: hosts the Admin Console, the API and the logic that manages the cluster." },
+      agents: { micro: "An agent on every host. Agents heartbeat to the server (every 15 seconds by default) and receive the actions to perform.", path: ["Server", "Heartbeat", "Agent", "Process"] },
+      mgmt: { micro: "A set of roles that perform monitoring, alerting and reporting." },
+      db: { micro: "Holds configuration and monitoring information." },
+    },
+    officialArchitecture: "https://docs.cloudera.com/cloudera-manager/7.13.2/concepts/topics/cm-architecture.html",
+    deploymentModels: ["Cloudera on premises"],
+    verificationDate: "2026-10-07",
+  },
 };
 
 const platform = {
@@ -118,7 +154,7 @@ const platform = {
       edges: [["write", "obj"], ["write", "meta"], ["meta", "read"], ["obj", "read"]],
     },
     deployment: {
-      nodes: [["dc", "On premises", "", "cloudera", "on-premises-deployment"], ["focus", "Runtime cluster", "", "focus"], ["hw", "Certified hardware", "", "vendor", "dell-technologies"]],
+      nodes: [["dc", "On premises", "", "cloudera", "on-premises-deployment"], ["focus", "Runtime cluster", "", "focus"], ["hw", "Infrastructure", "Servers and storage.", "vendor", "dell-technologies"]],
       edges: [["dc", "focus"], ["hw", "focus", "", { dashed: true }]],
     },
   },
@@ -158,14 +194,24 @@ const objectStore = {
   views: {
     internal: {
       nodes: [
-        ["clients", "S3 / ofs clients", "Engines and apps.", "client"],
-        ["s3g", "S3 Gateway", "S3-compatible endpoint.", "core"],
-        ["om", "Ozone Manager", "Namespace: volumes, buckets, keys.", "focus"],
-        ["scm", "Storage Container Manager", "Block/container placement.", "core"],
-        { id: "dn", label: "Datanodes", kind: "store", description: "Store containers.", children: [["dn1", "Datanode 1", ""], ["dn2", "Datanode 2", ""], ["dn3", "Datanode 3", ""]], childEdges: [] },
-        ["ranger", "Ranger", "Authorization.", "security", "apache-ranger"],
+        ["clients", "Applications", "Spark, Hive, Impala, NiFi and apps.", "client"],
+        ["s3", "S3 API", "Ozone natively supports the S3 API; Hadoop-compatible access too.", "core"],
+        ["volume", "Volume", "Like an account; created by administrators for a team.", "data"],
+        ["bucket", "Bucket", "Similar to an Amazon S3 bucket.", "data"],
+        ["key", "Key (object)", "Unique within a bucket; similar to an S3 object.", "data"],
+        { id: "ozone", label: "Apache Ozone storage", kind: "focus", description: "Data is stored as blocks inside storage containers on DataNodes.",
+          children: [["om", "Ozone Manager", "Namespace: volumes, buckets, keys."], ["scm", "Storage Container Manager", "Block and container placement."], ["dn", "DataNodes", "Hold the blocks."]],
+          childEdges: [] },
+        ["ranger", "Ranger", "Authorization and audit.", "security", "apache-ranger"],
       ],
-      edges: [["clients", "s3g"], ["s3g", "om"], ["clients", "om", "ofs", { dashed: true }], ["om", "scm"], ["scm", "dn"], ["clients", "dn", "data", { dashed: true }], ["ranger", "om", "", { dashed: true }]],
+      edges: [
+        ["clients", "s3", "read / write"],
+        ["s3", "volume"],
+        ["volume", "bucket"],
+        ["bucket", "key"],
+        ["key", "ozone", "blocks"],
+        ["ranger", "s3", "authorize", { kind: "control" }],
+      ],
     },
     dataFlow: {
       nodes: [["ingest", "Ingest", "NiFi / Kafka connect.", "apache", "apache-nifi"], ["bucket", "Lakehouse bucket", "Iceberg data + metadata.", "focus"], ["engines", "Engines", "Spark, Impala, Trino.", "apache", "trino"], ["archive", "Lifecycle / archive", "Older snapshots expire.", "store"]],
@@ -181,6 +227,19 @@ const objectStore = {
   clouderaContext: { standalone: "Apache Ozone is an Apache project.", clouderaIntegration: "Cloudera ships Ozone in Runtime and uses S3-compatible storage across Anywhere Cloud.", realWorld: "A pharma company stores imaging and trial data in Ozone and queries it with Impala and Spark." },
   useCases: [{ title: "On-prem S3 for the lakehouse", scenario: "Cloud-native storage in the data center.", industryIds: ["pharma", "healthcare", "financial"] }],
   relatedComponentIds: ["s3-storage", "dell-technologies", "apache-iceberg", "cloudera-platform"],
+  booth: {
+    oneLiner: "S3-compatible object storage, powered by Apache Ozone.",
+    trace: { label: "Write an object", nodes: ["clients", "s3", "volume", "bucket", "key", "ozone"] },
+    nodes: {
+      s3: { micro: "Applications talk to Ozone through the S3 API or a Hadoop-compatible file system." },
+      key: { micro: "Each key lives in a bucket, much like an S3 object. Its data is stored as blocks on DataNodes.", path: ["Volume", "Bucket", "Key", "Blocks"] },
+      ozone: { micro: "Apache Ozone is a scalable, distributed object store that handles both small and large files." },
+    },
+    officialArchitecture: "https://docs.cloudera.com/cdp-private-cloud-base/7.1.7/ozone-overview/topics/ozone-introduction.html",
+    unverified: ["cloudera.com/products/cloudera-object-store.html returned 404 on 2026-10-07"],
+    deploymentModels: ["Cloudera on premises"],
+    verificationDate: "2026-10-07",
+  },
 };
 
 const sdx = {
@@ -206,8 +265,25 @@ const sdx = {
   },
   views: {
     internal: {
-      nodes: [["idp", "Identity (LDAP/SSO/Kerberos)", "", "external"], ["ranger", "Apache Ranger", "Policies & audit.", "security", "apache-ranger"], ["atlas", "Apache Atlas", "Metadata & lineage.", "apache", "apache-atlas"], ["hms", "Shared metastore", "Table definitions.", "core"], { id: "plugins", label: "Engine plugins", kind: "core", description: "Enforcement points.", children: [["p1", "Hive/Impala", ""], ["p2", "Spark", ""], ["p3", "Kafka/NiFi", ""]], childEdges: [] }, ["focus", "SDX", "Shared experience.", "focus"]],
-      edges: [["idp", "focus"], ["focus", "ranger"], ["focus", "atlas"], ["focus", "hms"], ["ranger", "plugins", "policies"], ["plugins", "ranger", "audits", { dashed: true }], ["atlas", "ranger", "tags", { dashed: true }]],
+      nodes: [
+        ["idp", "Identity", "LDAP, SSO and Kerberos.", "external"],
+        ["focus", "Cloudera SDX", "One security and governance layer for every service.", "focus"],
+        ["security", "Security · Apache Ranger", "Authorization, row filtering, masking and audit.", "security", "apache-ranger"],
+        ["policies", "Governance · Policies", "Defined once, enforced in every engine.", "security", "security-policies-auditing"],
+        ["metadata", "Metadata · Apache Atlas", "Classification, search and lineage.", "apache", "apache-atlas"],
+        { id: "services", label: "Data services", kind: "cloudera", description: "Every Cloudera service enforces the same policies.",
+          children: [["ai", "Cloudera AI", "", "cloudera", "cloudera-ai"], ["de", "Data Engineering", "", "cloudera", "cloudera-data-engineering"], ["dw", "Data Warehouse", "", "cloudera", "cloudera-data-warehouse"], ["df", "Data Flow", "", "cloudera", "cloudera-data-flow"]],
+          childEdges: [] },
+      ],
+      edges: [
+        ["idp", "focus", "who"],
+        ["focus", "security"],
+        ["focus", "policies"],
+        ["focus", "metadata"],
+        ["security", "services", "enforce", { kind: "control" }],
+        ["policies", "services", "", { kind: "control" }],
+        ["metadata", "services", "tags + lineage", { kind: "bi" }],
+      ],
     },
     dataFlow: {
       nodes: [["user", "Analyst", "", "client"], ["engine", "Engine", "", "apache"], ["ranger", "Ranger", "", "security", "apache-ranger"], ["data", "Data", "", "store"], ["audit", "Audit store", "", "store"]],
@@ -223,6 +299,17 @@ const sdx = {
   clouderaContext: { standalone: "Ranger and Atlas are Apache projects.", clouderaIntegration: "SDX is Cloudera's integration of them across every service and environment.", realWorld: "A PII tag on a column automatically masks it in Impala, Spark and Trino." },
   useCases: [{ title: "GDPR/HIPAA enforcement", scenario: "Tag-based masking everywhere.", industryIds: ["healthcare", "financial", "insurance"] }],
   relatedComponentIds: ["apache-ranger", "apache-atlas", "unified-data-fabric", "access-control", "security-policies-auditing"],
+  booth: {
+    oneLiner: "One security and governance layer across every service and environment.",
+    trace: { label: "One policy, everywhere", nodes: ["idp", "focus", "security", "services"] },
+    nodes: {
+      focus: { micro: "Define security and governance once. Every Cloudera service applies it.", path: ["Identity", "Policy", "Every engine"] },
+      security: { micro: "Ranger decides who can see which tables, rows and columns, and audits every access." },
+      metadata: { micro: "Atlas classifies data and records lineage. A PII tag can drive masking everywhere." },
+    },
+    officialProductPage: "https://www.cloudera.com/products/sdx.html",
+    verificationDate: "2026-10-07",
+  },
 };
 
 const lineage = {
@@ -266,6 +353,16 @@ const lineage = {
   clouderaContext: { standalone: "Octopai was a standalone lineage vendor before acquisition.", clouderaIntegration: "Now Cloudera Data Lineage, part of the Unified Data Fabric.", realWorld: "Before changing a source column, a bank runs impact analysis and finds 37 affected reports." },
   useCases: [{ title: "Regulatory lineage (BCBS 239)", scenario: "Prove data provenance.", industryIds: ["financial", "insurance"] }],
   relatedComponentIds: ["unified-data-fabric", "data-lineage-concept", "apache-atlas", "cloudera-sdx", "trino"],
+  booth: {
+    oneLiner: "See where every number came from, across every system (formerly Octopai).",
+    trace: { label: "Follow the data", nodes: ["sources", "connectors", "harvest", "engine", "graph", "ui"] },
+    nodes: {
+      engine: { micro: "Parses SQL, mappings and reports, and infers missing links.", path: ["Source", "Transformation", "Table", "Model", "Dashboard"] },
+      graph: { micro: "A cross-system lineage graph down to column level." },
+    },
+    officialProductPage: "https://www.cloudera.com/products/unified-data-fabric/data-lineage.html",
+    verificationDate: "2026-10-07",
+  },
 };
 
 const fabric = {
@@ -301,6 +398,11 @@ const fabric = {
   clouderaContext: { standalone: "A Cloudera capability composed of open engines and Cloudera products.", clouderaIntegration: "Shown as the governance core of the Anywhere Cloud pillar.", realWorld: "A healthcare network queries EHR data in two data centers and a cloud with one policy set." },
   useCases: [{ title: "Hybrid governance", scenario: "One policy model everywhere.", industryIds: ["healthcare", "financial"] }],
   relatedComponentIds: ["cloudera-sdx", "cloudera-data-lineage", "trino", "apache-atlas", "apache-ranger", "cloudera-anywhere-cloud"],
+  booth: {
+    oneLiner: "Governance, federation, lineage and catalog across every environment.",
+    trace: { label: "Governed federated query", nodes: ["focus", "sdx", "fed", "sources"] },
+    officialProductPage: "https://www.cloudera.com/products/unified-data-fabric.html",
+  },
 };
 
 const anywhere = {
@@ -335,7 +437,102 @@ const anywhere = {
   ops: { security: "Zero-trust fabric, PII masking, audit lineage.", governance: "Unified Data Fabric.", monitoring: "Agentic copilot and observability.", scalability: "Modular, per-service scaling." },
   clouderaContext: { standalone: "A Cloudera product.", clouderaIntegration: "The right pillar of the umbrella; coexists with Base via three connector flows.", realWorld: "A government agency runs AI 2.0 air-gapped while analytics run in a sovereign cloud on one fabric." },
   useCases: [{ title: "Sovereign AI", scenario: "Data residency with modern AI.", industryIds: ["financial", "healthcare", "telco"] }],
-  relatedComponentIds: ["cloudera-data-services-2", "unified-data-fabric", "spark-4", "trino", "cloudera-base-datahub", "flow-seamless-transition"],
+  relatedComponentIds: ["cloudera-data-services-2", "unified-data-fabric", "spark-4", "trino", "cloudera-base-datahub", "hybrid-cloud"],
+  booth: {
+    oneLiner: "Modular hybrid data and AI platform: public, sovereign, private, air-gapped.",
+    trace: { label: "From marketplace to data", nodes: ["focus", "market", "cds2", "eng", "obj"] },
+  },
 };
 
-export default [base, manager, platform, objectStore, sdx, lineage, fabric, anywhere];
+// Source: docs.cloudera.com/hybrid-cloud/latest/overview/topics/hc-how-hybrid-cloud-envs-work.html
+const hybrid = {
+  id: "hybrid-cloud",
+  name: "Hybrid Cloud",
+  aka: "Cloudera Hybrid Environments",
+  origin: "cloudera",
+  category: "platform",
+  tagline: "Cloud compute that works on on-premises data in place, under the same governance.",
+  overview:
+    "Cloudera Hybrid Environments use a compute-only cloud replica model based on in-place data access: workloads submitted to compute services in Cloudera Hybrid Data Hubs access data and metadata directly from an associated Cloudera on-premises cluster. Cloudera names four building blocks: unified authentication (two-way Kerberos cross-realm trust), metadata synchronization (the on-premises cluster is the metadata, authorization and governance context), network connectivity (stable, bi-directional connectivity for in-place reads and writes) and workload portability (a unified Runtime version on both sides).",
+  businessValue: "Add cloud compute next to existing on-premises data without copying it and without a second governance model.",
+  capabilities: ["Unified authentication", "Metadata synchronization", "Network connectivity", "Workload portability", "Compute-only cloud replica with in-place data access"],
+  workflow: {
+    title: "Workload portability",
+    stages: [
+      ["net", "Connect networks", "Stable, bi-directional connectivity between the on-premises cluster and the hybrid cloud environment."],
+      ["auth", "Trust identities", "Two-way Kerberos cross-realm trust enables centralized authorization and governance.", "cloudera-sdx"],
+      ["meta", "Synchronize metadata", "The on-premises cluster becomes the Hybrid Data Hub's metadata, authorization and governance context."],
+      ["runtime", "Same runtime", "A unified Runtime version on both sides keeps workloads portable."],
+      ["submit", "Run in cloud compute", "The workload is submitted to compute services in the Hybrid Data Hub."],
+      ["inplace", "Read data in place", "The job reads and writes on-premises data directly — no copy.", "on-premises-deployment"],
+      ["govern", "Same governance", "On-premises policies and governance apply to the cloud workload.", "cloudera-sdx"],
+    ],
+  },
+  views: {
+    internal: {
+      nodes: [
+        ["cp", "Cloudera control", "Management for cloud environments and Hybrid Data Hubs.", "cloudera"],
+        ["onprem", "On-premises cluster", "Holds the data and the metadata, authorization and governance context.", "focus", "on-premises-deployment"],
+        ["auth", "Unified authentication", "Two-way Kerberos cross-realm trust between hybrid cloud and on-premises clusters.", "security"],
+        ["meta", "Metadata synchronization", "The on-premises cluster is the Hybrid Data Hub's metadata, authorization and governance context.", "security"],
+        ["net", "Network connectivity", "Stable, bi-directional connectivity for in-place data reads and writes.", "core"],
+        ["port", "Workload portability", "A unified Runtime version on both sides.", "cloudera"],
+        ["hdh", "Hybrid Data Hub", "Compute-only cloud replica: workloads run here and access on-premises data in place.", "cloud"],
+        ["data", "Data stays where it lives", "On-premises data is read and written in place, not copied.", "store", "cloudera-object-store"],
+        ["gov", "Same governance", "Centralized authorization and governance from the on-premises context.", "security", "cloudera-sdx"],
+        ["aws", "AWS", "Cloudera public cloud environment.", "cloud", "aws"],
+        ["azure", "Microsoft Azure", "Cloudera public cloud environment.", "cloud", "microsoft-azure"],
+        ["gcp", "Google Cloud", "Cloudera public cloud environment.", "cloud", "google-cloud"],
+      ],
+      edges: [
+        ["cp", "hdh", "provision", { kind: "control" }],
+        ["cp", "aws", "", { kind: "control" }],
+        ["cp", "azure", "", { kind: "control" }],
+        ["cp", "gcp", "", { kind: "control" }],
+        ["onprem", "auth", "", { kind: "bi" }],
+        ["auth", "hdh", "", { kind: "bi" }],
+        ["onprem", "meta", "", { kind: "bi" }],
+        ["meta", "hdh", "", { kind: "bi" }],
+        ["onprem", "net", "", { kind: "bi" }],
+        ["net", "hdh", "", { kind: "bi" }],
+        ["onprem", "port", "same runtime"],
+        ["port", "hdh", "workload"],
+        ["onprem", "data", "lives here"],
+        ["hdh", "data", "read / write in place"],
+        ["gov", "data", "governs", { kind: "control" }],
+      ],
+    },
+    dataFlow: {
+      nodes: [["job", "Workload", "", "client"], ["hdh", "Hybrid Data Hub compute", "", "cloud"], ["onprem", "On-premises data", "", "store", "on-premises-deployment"], ["result", "Results written in place", "", "data"]],
+      edges: [["job", "hdh"], ["hdh", "onprem", "read in place"], ["hdh", "result"], ["result", "onprem", "write in place"]],
+    },
+    deployment: {
+      nodes: [["onprem", "Cloudera on premises", "", "cloudera", "on-premises-deployment"], ["focus", "Hybrid environment", "", "focus"], ["cloud", "Cloudera on cloud", "", "cloud", "cloud-deployment"]],
+      edges: [["onprem", "focus", "", { kind: "bi" }], ["focus", "cloud", "", { kind: "bi" }]],
+    },
+  },
+  io: { inputs: ["On-premises data and metadata", "Workloads"], outputs: ["Results written in place"], dependencies: ["Network connectivity", "Kerberos cross-realm trust", "Matching Runtime versions"], connectors: ["In-place data access"], apis: ["Service APIs"], integrations: ["Cloudera on premises", "Cloudera Data Hub"] },
+  ops: { security: "Two-way Kerberos cross-realm trust; centralized authorization.", governance: "On-premises cluster is the governance context.", monitoring: "Per-cluster tooling.", scalability: "Cloud compute scales independently of on-premises storage." },
+  clouderaContext: { standalone: "A Cloudera capability.", clouderaIntegration: "Links Cloudera on premises with Cloudera Hybrid Data Hubs in the cloud.", realWorld: "A bank runs a peak-season Spark job in cloud compute against data that stays in its data center." },
+  useCases: [{ title: "Cloud compute for on-prem data", scenario: "Add capacity without moving data.", industryIds: ["financial", "telco"] }],
+  relatedComponentIds: ["on-premises-deployment", "cloud-deployment", "cloudera-sdx", "aws", "microsoft-azure", "google-cloud", "cloudera-anywhere-cloud"],
+  booth: {
+    oneLiner: "Cloud compute on on-premises data, in place, under the same governance.",
+    trace: { label: "Workload portability", nodes: ["onprem", "port", "hdh", "data", "gov"] },
+    traceFrom: ["port"],
+    nodes: {
+      auth: { micro: "A two-way Kerberos cross-realm trust links the hybrid cloud and on-premises clusters. That enables centralized authorization and governance." },
+      meta: { micro: "The on-premises cluster acts as the Hybrid Data Hub's metadata, authorization and governance context." },
+      net: { micro: "Stable, bi-directional connectivity supports in-place reads and writes for active jobs." },
+      port: { micro: "A unified Runtime version on both sides keeps workloads portable by default.", path: ["On premises", "Cloud compute", "Same data", "Same governance"] },
+      hdh: { micro: "A compute-only cloud replica. Workloads run here and access on-premises data and metadata directly." },
+      data: { micro: "Data stays where it lives. Compute moves closer to it." },
+    },
+    officialArchitecture: "https://docs.cloudera.com/hybrid-cloud/latest/overview/topics/hc-how-hybrid-cloud-envs-work.html",
+    unverified: ["Which cloud providers support Hybrid Data Hubs is not stated in the source doc", "Cloud bursting behaviour per workload type"],
+    deploymentModels: ["Cloudera on premises", "Cloudera on cloud"],
+    verificationDate: "2026-10-07",
+  },
+};
+
+export default [base, manager, platform, objectStore, sdx, lineage, fabric, anywhere, hybrid];

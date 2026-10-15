@@ -1,26 +1,19 @@
 // ============================================================
 //  Content model — authoritative source: etcio_summit.xlsx
 //
-//  type "video" -> plays a local mp4 in the detail panel / loop
+//  type "video" -> embeds a YouTube clip in the detail panel / loop
 //  type "link"  -> opens an external Cloudera page in a new tab
 //
-//  Local clips live in /public/videos:
-//   - YouTube videos downloaded locally (own file): cdf-overview,
-//     open-data-lakehouse, sdx, private-ai, data-warehouse,
-//     data-engineering  (+ matching *.en.vtt caption tracks)
-//   - Cloudera-supplied clips (symlinks to /Videos): realtime-ai,
-//     agent-studio-iceberg, data-lineage, hybrid-anywhere, pharma-clinical
+//  All videos are YouTube embeds (identified by `youtubeId`); the app
+//  no longer bundles any downloaded MP4s.
 // ============================================================
 
-const v = (slug) => `/videos/${slug}.mp4`;
-const cc = (slug) => `/videos/${slug}.en.vtt`;
-
-// ---- Main page: attract loop (4 clips, captions on) ---------
+// ---- Main page: attract loop (muted, looping YouTube background) ----
 export const loopPlaylist = [
-  { slug: "cdf-overview", label: "Cloudera DataFlow (CDF) Overview", captions: cc("cdf-overview") },
-  { slug: "open-data-lakehouse", label: "Open Data Lakehouse", captions: cc("open-data-lakehouse") },
-  { slug: "hybrid-anywhere", label: "Anywhere Cloud", captions: null },
-  { slug: "sdx", label: "Cloudera Data Platform — SDX", captions: cc("sdx") },
+  { youtubeId: "tLEGcWC4paI", label: "Cloudera DataFlow (CDF) Overview" },
+  { youtubeId: "DcC7OCP8ke0", label: "Open Data Lakehouse" },
+  { youtubeId: "-dtzknHhvTo", label: "Anywhere Cloud" },
+  { youtubeId: "aFHlU9P5mFg", label: "Cloudera Data Platform — SDX" },
 ];
 
 // ---- Platform-map layers (top -> bottom) --------------------
@@ -51,8 +44,7 @@ export const services = [
       "Feeds real-time AI and analytics instantly",
     ],
     tags: ["NiFi", "Kafka", "Flink", "Streaming"],
-    video: v("realtime-ai"),
-    captions: null,
+    youtubeId: "tLEGcWC4paI",
   },
   {
     id: "lakehouse",
@@ -69,8 +61,7 @@ export const services = [
       "Multi-engine: Spark, Impala, Hive, Flink on the same tables",
     ],
     tags: ["Apache Iceberg", "Open Format", "ACID"],
-    video: v("open-data-lakehouse"),
-    captions: cc("open-data-lakehouse"),
+    youtubeId: "DcC7OCP8ke0",
   },
   {
     id: "engineering",
@@ -87,8 +78,7 @@ export const services = [
       "Prepares trusted data for warehouse & AI",
     ],
     tags: ["Apache Spark", "Airflow", "Pipelines"],
-    video: v("data-engineering"),
-    captions: cc("data-engineering"),
+    youtubeId: "d7X5UY8o56k",
   },
   {
     id: "warehouse",
@@ -105,8 +95,7 @@ export const services = [
       "Connects to any BI tool",
     ],
     tags: ["SQL", "Impala", "BI"],
-    video: v("data-warehouse"),
-    captions: cc("data-warehouse"),
+    youtubeId: "w4rte8HIjBI",
   },
   {
     id: "privateai",
@@ -123,8 +112,7 @@ export const services = [
       "From prototype to production without rebuilds",
     ],
     tags: ["GenAI", "MLOps", "Private"],
-    video: v("private-ai"),
-    captions: cc("private-ai"),
+    youtubeId: "JqWmErXze-s",
   },
   {
     id: "agents",
@@ -141,8 +129,7 @@ export const services = [
       "Human-in-the-loop and full auditability",
     ],
     tags: ["AI Agents", "MCP", "Iceberg"],
-    video: v("agent-studio-iceberg"),
-    captions: null,
+    youtubeId: "XZMaJaLBN6s",
   },
   {
     id: "sdx",
@@ -159,8 +146,7 @@ export const services = [
       "Write a policy once — it applies everywhere",
     ],
     tags: ["Lineage", "Metadata", "Governance", "Security"],
-    video: v("data-lineage"),
-    captions: null,
+    youtubeId: "FEDicBHXkgc",
   },
   {
     id: "anywhere",
@@ -173,8 +159,7 @@ export const services = [
     points: [],
     tags: ["Hybrid", "Multi-cloud", "Portable"],
     url: "https://www.cloudera.com/products/cloudera-data-platform/cdp-demos.html?internal_keyplay=cross&internal_campaign=Other---AlwaysOn-GLOBAL-WS-Website-CDP-Demo-Request&cid=7012H000001Z3MrQAK&internal_link=WWW-Nav-u01",
-    video: null,
-    captions: null,
+    youtubeId: null,
   },
 ];
 

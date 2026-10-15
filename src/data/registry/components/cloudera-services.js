@@ -40,17 +40,36 @@ const cdai = {
   views: {
     internal: {
       nodes: [
-        ["users", "Data scientists / ML engineers", "Work in projects via the web UI, API or IDEs.", "client"],
-        { id: "wb", label: "Cloudera AI Workbench", kind: "focus", description: "Projects, sessions, jobs and applications.",
-          children: [["sessions", "Sessions", "Interactive containers per user."], ["jobs", "Jobs", "Scheduled/batch workloads."], ["apps", "Applications", "Hosted web apps (e.g. Streamlit)."]],
+        ["data", "Governed lakehouse data", "Iceberg tables and documents in the open data lakehouse.", "store", "cloudera-data-lakehouse"],
+        { id: "wb", label: "Develop · AI Workbench", kind: "cloudera", ref: "cloudera-ai-workbench", description: "Explore data, build, train and fine-tune models in governed projects.",
+          children: [
+            ["notebooks", "Notebooks & editors", "Jupyter, VS Code or RStudio in isolated containerized sessions."],
+            ["studios", "AI Studios", "Low-code studios for RAG, fine-tuning, synthetic data and agent workflows.", "cloudera", "ai-studios"],
+            ["amps", "AMPs", "Accelerators for ML Projects: prebuilt, deployable reference projects."],
+            ["train", "Training & fine-tuning", "Train or fine-tune on CPU or GPU compute."],
+          ],
           childEdges: [] },
-        ["runtimes", "ML Runtimes", "Container images for Python/R/GPU workloads.", "core"],
-        ["registry", "Model registry", "Versioned models and metadata.", "store"],
-        ["inference", "AI Inference service", "Production model & LLM serving; NVIDIA NIM embedded.", "cloudera"],
-        ["k8s", "Kubernetes compute", "CPU and GPU node pools.", "core"],
-        ["sdx", "SDX", "Identity, authorization and lineage.", "cloudera", "cloudera-sdx"],
+        ["registry", "Model registry", "Versioned models handed from development to production.", "store"],
+        { id: "inference", label: "Production · AI Inference", kind: "cloudera", ref: "ai-inference-service", description: "Serve traditional and GenAI models with autoscaling and monitoring.",
+          children: [
+            ["endpoints", "Model endpoints", "Authenticated endpoints using the OpenAI API and Open Inference Protocol."],
+            ["autoscale", "Autoscaling", "Knative-based autoscaling, including scale to zero."],
+            ["monitor", "Monitoring", "Prometheus metrics; request and response payloads logged to Iceberg."],
+          ],
+          childEdges: [] },
+        ["nim", "NVIDIA NIM", "Optimized model microservices supported by the AI Inference service.", "vendor", "nvidia"],
+        ["apps", "Apps & agents", "Chatbots, RAG pipelines, agents and batch or real-time predictions.", "client", "cloudera-agent-studio"],
+        ["sdx", "Governance · SDX", "Identity, Ranger authorization and lineage across development and production.", "security", "cloudera-sdx"],
       ],
-      edges: [["users", "wb"], ["runtimes", "wb", "images", { dashed: true }], ["wb", "registry", "register"], ["registry", "inference", "deploy"], ["wb", "k8s"], ["inference", "k8s"], ["sdx", "wb", "governs", { dashed: true }]],
+      edges: [
+        ["data", "wb", "governed access"],
+        ["wb", "registry", "register"],
+        ["registry", "inference", "deploy"],
+        ["nim", "inference", "optimized LLMs", { kind: "optional" }],
+        ["inference", "apps", "predictions"],
+        ["sdx", "wb", "governs", { kind: "control" }],
+        ["sdx", "inference", "authorizes", { kind: "control" }],
+      ],
     },
     dataFlow: {
       nodes: [
@@ -97,7 +116,24 @@ const cdai = {
     { title: "Private document intelligence", scenario: "Summarize and classify sensitive documents with private LLMs.", industryIds: ["insurance", "healthcare", "financial"] },
     { title: "Predictive maintenance models", scenario: "Train failure-prediction models on sensor history.", industryIds: ["manufacturing"] },
   ],
-  relatedComponentIds: ["ai-2", "cloudera-agent-studio", "nvidia", "cloudera-sdx", "cloudera-data-lakehouse", "apache-spark"],
+  relatedComponentIds: ["cloudera-ai-workbench", "ai-studios", "ai-inference-service", "cloudera-agent-studio", "ai-2", "nvidia", "cloudera-sdx", "cloudera-data-lakehouse"],
+  booth: {
+    oneLiner: "Build, deploy and govern traditional, generative and agentic AI on your data.",
+    trace: { label: "Model lifecycle", nodes: ["data", "wb", "registry", "inference", "apps"] },
+    nodes: {
+      data: { micro: "Models train on the same governed tables the business already uses. Data stays in your environment." },
+      wb: { micro: "Where data scientists explore, build and fine-tune. Notebooks, AI Studios and AMPs in one governed workspace.", path: ["Data", "Explore", "Train", "Register"] },
+      studios: { micro: "Low-code studios for RAG, fine-tuning, synthetic data and multi-agent workflows.", path: ["Enterprise data", "Retrieve", "Augment prompt", "Inference"] },
+      registry: { micro: "The hand-off point: a versioned model moves from development to production." },
+      inference: { micro: "Production serving with autoscaling, monitoring and enterprise security.", path: ["Model", "Endpoint", "Autoscale", "Monitor"], video: "ai-inference-secure" },
+      nim: { micro: "NVIDIA NIM microservices can run inside the AI Inference service for optimized LLM serving." },
+      sdx: { micro: "One set of identity, policies and lineage covers development and production." },
+    },
+    officialArchitecture: "https://docs.cloudera.com/machine-learning/cloud/architecture-overview/topics/ml-architecture-overview-cml.html",
+    officialProductPage: "https://www.cloudera.com/products/enterprise-ai/ai.html",
+    deploymentModels: ["Cloudera on cloud", "Cloudera on premises"],
+    verificationDate: "2026-10-07",
+  },
 };
 
 const cde = {
@@ -134,17 +170,32 @@ const cde = {
   views: {
     internal: {
       nodes: [
-        ["clients", "UI / CLI / API", "Define and trigger jobs.", "client"],
-        { id: "svc", label: "CDE service", kind: "focus", description: "Control layer that hosts virtual clusters.",
-          children: [["vc1", "Virtual cluster A", "Team-isolated Spark + Airflow."], ["vc2", "Virtual cluster B", "Different Spark version / quota."]],
+        ["src", "Data sources", "Databases, files, streams and APIs.", "external"],
+        ["cdc", "Change data capture", "Built-in CDC brings source changes into pipelines.", "core"],
+        { id: "spark", label: "Apache Spark", kind: "apache", ref: "apache-spark", description: "Containerized Spark jobs in an autoscaling virtual cluster.",
+          children: [["vc", "Virtual cluster", "Team-isolated Spark environment with its own quota."], ["jobs", "Spark jobs", "Code, configuration and schedule bound together."]],
           childEdges: [] },
-        ["airflow", "Embedded Airflow", "Per-virtual-cluster orchestration.", "apache", "apache-airflow"],
-        ["spark", "Spark on Kubernetes", "Driver/executor pods per run.", "apache", "apache-spark"],
-        ["sched", "Kubernetes scheduling", "Queues and quotas decide where pods run.", "core"],
-        ["dl", "SDX Data Lake", "Metastore, Ranger, Atlas.", "cloudera", "cloudera-sdx"],
-        ["obj", "Object storage", "Iceberg tables and logs.", "store", "cloudera-object-store"],
+        ["ice", "Apache Iceberg tables", "Open lakehouse tables with time travel and schema evolution.", "store", "apache-iceberg"],
+        ["airflow", "Apache Airflow", "Self-service orchestration of pipelines.", "apache", "apache-airflow"],
+        ["dev", "Sessions & IDEs", "Interactive sessions and external IDE connectivity.", "client"],
+        ["api", "APIs & CLI", "Rich APIs and visual troubleshooting.", "client"],
+        ["serve", "Analytics & AI", "Warehouses, BI and AI read the curated tables.", "client", "cloudera-data-warehouse"],
+        ["share", "Iceberg REST Catalog", "External engines read the same tables (zero-ETL sharing).", "external"],
+        ["lineage", "Lineage & metadata", "Powered by SDX and Cloudera Data Lineage.", "security", "cloudera-data-lineage"],
+        ["sdx", "SDX", "Fine-grained access control on every read and write.", "security", "cloudera-sdx"],
       ],
-      edges: [["clients", "svc"], ["svc", "airflow"], ["airflow", "spark", "trigger"], ["spark", "sched"], ["spark", "dl", "policies + lineage", { dashed: true }], ["spark", "obj", "read / write"]],
+      edges: [
+        ["src", "cdc"],
+        ["cdc", "spark", "changes"],
+        ["spark", "ice", "write"],
+        ["ice", "serve", "serve"],
+        ["ice", "share", "share", { kind: "optional" }],
+        ["airflow", "spark", "orchestrate", { kind: "control" }],
+        ["dev", "spark", "interactive", { kind: "control" }],
+        ["api", "airflow", "", { kind: "control" }],
+        ["sdx", "spark", "policies", { kind: "control" }],
+        ["spark", "lineage", "lineage", { kind: "control" }],
+      ],
     },
     dataFlow: {
       nodes: [
@@ -191,6 +242,21 @@ const cde = {
     { title: "Clinical data integration", scenario: "Harmonize trial sources on a schedule.", industryIds: ["pharma"] },
   ],
   relatedComponentIds: ["apache-spark", "apache-airflow", "data-engineering-2", "apache-iceberg", "nvidia", "cloudera-sdx"],
+  booth: {
+    oneLiner: "Build, orchestrate and govern pipelines with Apache Spark on Iceberg.",
+    trace: { label: "Pipeline", nodes: ["src", "cdc", "spark", "ice", "serve"] },
+    nodes: {
+      cdc: { micro: "Built-in change data capture keeps pipelines in step with source systems." },
+      spark: { micro: "Spark runs in containers inside an autoscaling virtual cluster per team.", path: ["Ingest", "Transform", "Write"] },
+      ice: { micro: "Curated data lands once as open Iceberg tables. Every engine reads the same copy." },
+      airflow: { micro: "Airflow sequences jobs, checks and refreshes as one pipeline." },
+      share: { micro: "External engines connect through the Iceberg REST Catalog, with metadata governance and lineage." },
+      lineage: { micro: "End-to-end lineage shows where every table came from." },
+    },
+    officialProductPage: "https://www.cloudera.com/products/data-engineering.html",
+    deploymentModels: ["Cloudera on cloud", "Cloudera on premises"],
+    verificationDate: "2026-10-07",
+  },
 };
 
 const cdl = {
@@ -227,14 +293,30 @@ const cdl = {
   views: {
     internal: {
       nodes: [
-        ["engines", "Engines", "Impala, Hive, Spark, Flink, NiFi, Trino.", "apache"],
-        ["catalog", "Catalog layer", "Hive Metastore / Iceberg REST (Polaris).", "core"],
-        ["iceberg", "Iceberg tables", "Open table format.", "focus", "apache-iceberg"],
-        ["store", "Object storage", "Ozone on-prem; S3/ADLS/GCS in cloud.", "store", "cloudera-object-store"],
-        ["sdx", "SDX", "Ranger, Atlas, lineage.", "cloudera", "cloudera-sdx"],
-        ["catalogui", "Data catalog & lineage", "Discovery and lineage for users.", "cloudera", "cloudera-data-lineage"],
+        ["ingest", "Ingest", "NiFi, Kafka and batch loads land new data.", "core", "cloudera-data-flow"],
+        ["iceberg", "Apache Iceberg tables", "One open table format with ACID, time travel and schema evolution.", "focus", "apache-iceberg"],
+        ["store", "Object storage", "Ozone on premises; S3, ADLS or GCS in the cloud.", "store", "cloudera-object-store"],
+        ["catalog", "Catalog", "Hive Metastore and Iceberg REST tell every engine where tables live.", "data"],
+        ["spark", "Spark", "Pipelines and machine learning.", "apache", "apache-spark"],
+        ["trino", "Trino", "Federated SQL across sources.", "apache", "trino"],
+        ["sql", "Impala / Hive", "Interactive and batch SQL.", "apache", "apache-impala"],
+        ["bi", "BI & AI", "Dashboards, models and agents.", "client", "cloudera-ai"],
+        ["sdx", "Govern · SDX", "Ranger policies and Atlas metadata apply to every engine.", "security", "cloudera-sdx"],
+        ["lineage", "Lineage", "Cross-system lineage and discovery.", "security", "cloudera-data-lineage"],
       ],
-      edges: [["engines", "catalog", "resolve tables"], ["catalog", "iceberg"], ["iceberg", "store"], ["sdx", "engines", "policies", { dashed: true }], ["sdx", "catalogui", "", { dashed: true }]],
+      edges: [
+        ["ingest", "iceberg", "write"],
+        ["iceberg", "store", "files"],
+        ["iceberg", "catalog", "metadata", { kind: "bi" }],
+        ["catalog", "spark"],
+        ["catalog", "trino"],
+        ["catalog", "sql"],
+        ["spark", "bi"],
+        ["trino", "bi"],
+        ["sql", "bi"],
+        ["sdx", "catalog", "policies", { kind: "control" }],
+        ["sdx", "lineage", "", { kind: "control" }],
+      ],
     },
     dataFlow: {
       nodes: [
@@ -282,6 +364,18 @@ const cdl = {
     { title: "AI-ready research data", scenario: "Governed tables for clinical and genomic analytics.", industryIds: ["pharma", "healthcare"] },
   ],
   relatedComponentIds: ["apache-iceberg", "data-lakehouse-2", "cloudera-data-warehouse", "cloudera-sdx", "cloudera-object-store", "trino"],
+  booth: {
+    oneLiner: "Store data once in open Iceberg tables; every engine works on the same copy.",
+    trace: { label: "Store once, query anywhere", nodes: ["ingest", "iceberg", "catalog", "trino", "bi"] },
+    nodes: {
+      iceberg: { micro: "Open tables with ACID transactions, time travel and schema evolution.", path: ["Ingest", "Iceberg", "Any engine"] },
+      catalog: { micro: "The catalog tells Spark, Trino, Impala and Hive where each table lives." },
+      sdx: { micro: "Policies are defined once and enforced in every engine that reads the tables." },
+    },
+    officialProductPage: "https://www.cloudera.com/products/open-data-lakehouse.html",
+    deploymentModels: ["Cloudera on cloud", "Cloudera on premises"],
+    verificationDate: "2026-10-07",
+  },
 };
 
 const cdf = {
@@ -318,17 +412,27 @@ const cdf = {
   views: {
     internal: {
       nodes: [
-        ["designer", "Flow Designer", "Visual authoring and test sessions.", "core"],
-        ["catalog", "Catalog", "Versioned flow definitions.", "store"],
-        ["gallery", "ReadyFlow Gallery", "Prebuilt flows.", "core"],
-        { id: "deploy", label: "Flow deployments", kind: "focus", description: "Isolated NiFi clusters on Kubernetes.",
-          children: [["nifi", "NiFi runtime", "Processors and queues.", "apache", "apache-nifi"], ["kpi", "KPIs & alerts", "Throughput and errors."]],
+        { id: "cp", label: "Cloudera Control Plane", kind: "cloudera", description: "Overview, Catalog and environment management. Flow data never passes through it.",
+          children: [["catalog", "Catalog", "Versioned flow definitions."], ["gallery", "ReadyFlow Gallery", "Prebuilt source-to-destination flows."], ["envmgmt", "Environment management", "Enables the service in a registered environment."]],
           childEdges: [] },
-        ["kafka", "Streams Messaging", "Kafka topics.", "apache", "apache-kafka"],
-        ["flink", "Streaming Analytics", "Flink / SQL Stream Builder.", "apache", "apache-flink"],
-        ["sdx", "SDX", "Policies and lineage.", "cloudera", "cloudera-sdx"],
+        ["k8s", "Kubernetes in your environment", "Created by Data Flow: cluster, operators and workload app.", "core"],
+        { id: "deploy", label: "NiFi deployment", kind: "focus", ref: "apache-nifi", description: "Runs the flow logic and processes data in your environment.",
+          children: [["nifi", "NiFi flow", "Processors, queues and routing.", "apache", "apache-nifi"], ["kpi", "KPIs & alerts", "Throughput and failure metrics."]],
+          childEdges: [] },
+        ["src", "Sources", "Databases, files, APIs, logs and devices.", "external"],
+        ["dest", "Destinations", "Kafka topics, lakehouse tables, cloud stores and apps.", "store", "cloudera-data-lakehouse"],
+        ["kafka", "Apache Kafka", "Streams messaging for many consumers.", "apache", "apache-kafka"],
+        ["sdx", "SDX", "Policies and lineage.", "security", "cloudera-sdx"],
       ],
-      edges: [["designer", "catalog", "publish"], ["gallery", "deploy"], ["catalog", "deploy", "deploy"], ["deploy", "kafka", "publish"], ["kafka", "flink"], ["sdx", "deploy", "", { dashed: true }]],
+      edges: [
+        ["cp", "k8s", "provision", { kind: "control" }],
+        ["k8s", "deploy", "runs", { kind: "control" }],
+        ["src", "deploy", "data"],
+        ["deploy", "dest", "data"],
+        ["deploy", "kafka", "events", { kind: "optional" }],
+        ["deploy", "cp", "heartbeats (health only)", { kind: "control", reverse: true }],
+        ["sdx", "deploy", "policies", { kind: "control" }],
+      ],
     },
     dataFlow: {
       nodes: [
@@ -375,6 +479,21 @@ const cdf = {
     { title: "IoT telemetry ingestion", scenario: "Collect sensor data at the edge.", industryIds: ["manufacturing", "telco"] },
   ],
   relatedComponentIds: ["apache-nifi", "apache-kafka", "apache-flink", "data-flow-2", "cloudera-data-lakehouse"],
+  booth: {
+    oneLiner: "Move data from any source to any destination with Apache NiFi.",
+    trace: { label: "Data stays in your environment", nodes: ["src", "deploy", "dest"] },
+    nodes: {
+      cp: { micro: "Hosts the Catalog, ReadyFlow Gallery and environment management. Data being processed never traverses it." },
+      k8s: { micro: "Enabling Data Flow creates a Kubernetes cluster, operators and the workload app in your environment." },
+      deploy: { micro: "Deployments run the NiFi flow logic and process data in your environment. Only health heartbeats go to the Control Plane.", path: ["Source", "Processor", "Queue", "Route", "Destination"] },
+      src: { micro: "Pull from databases, files, APIs, logs and devices." },
+      dest: { micro: "Deliver to Kafka, lakehouse tables, cloud storage or applications." },
+    },
+    officialArchitecture: "https://docs.cloudera.com/dataflow/cloud/overview/topics/cdf-architecture.html",
+    officialProductPage: "https://www.cloudera.com/products/dataflow.html",
+    deploymentModels: ["Cloudera on cloud", "Cloudera on premises"],
+    verificationDate: "2026-10-07",
+  },
 };
 
 const cdw = {
@@ -410,17 +529,27 @@ const cdw = {
   views: {
     internal: {
       nodes: [
-        ["bi", "Hue / BI / JDBC", "SQL clients.", "client"],
-        { id: "vws", label: "Virtual Warehouses", kind: "focus", description: "Isolated SQL compute.",
-          children: [["impala", "Impala VW", "Interactive BI.", "apache", "apache-impala"], ["hive", "Hive VW", "ETL / complex SQL.", "apache", "apache-hive"]],
-          childEdges: [] },
-        ["dbc", "Database Catalog", "Metastore binding.", "core"],
-        ["viz", "Data Visualization", "Dashboards.", "cloudera"],
-        ["sdx", "SDX", "Ranger, Atlas.", "cloudera", "cloudera-sdx"],
-        ["obj", "Object storage", "Iceberg tables.", "store", "cloudera-object-store"],
-        ["k8s", "Kubernetes", "Autoscaled pods.", "core"],
+        ["cp", "Control Plane", "Serves every create, upgrade, suspend and resume action from the UI or CLI.", "cloudera"],
+        ["bi", "SQL & BI clients", "JDBC/ODBC tools, Hue, Beeline and Impala-Shell.", "client"],
+        ["viz", "Data Visualization", "Dashboards and visual apps.", "cloudera"],
+        ["vw1", "Virtual Warehouse · Impala", "Compute on Kubernetes for interactive SQL; autoscales with concurrency.", "apache", "apache-impala"],
+        ["vw2", "Virtual Warehouse · Hive", "Separate compute for batch and complex SQL on the same data.", "apache", "apache-hive"],
+        ["dbc", "Database Catalog", "Table metadata and permissions in a Hive metastore.", "focus"],
+        ["lake", "Lakehouse data", "Object store in the secure data lake holds the actual data.", "store", "cloudera-data-lakehouse"],
+        ["sdx", "SDX", "Ranger policies and audit.", "security", "cloudera-sdx"],
       ],
-      edges: [["bi", "vws"], ["viz", "vws"], ["vws", "dbc"], ["dbc", "sdx", "", { dashed: true }], ["vws", "obj", "scan"], ["vws", "k8s"]],
+      edges: [
+        ["cp", "dbc", "manage", { kind: "control" }],
+        ["cp", "vw1", "", { kind: "control" }],
+        ["cp", "vw2", "", { kind: "control" }],
+        ["bi", "vw1", "SQL"],
+        ["bi", "vw2", "SQL"],
+        ["viz", "vw1", "", { kind: "optional" }],
+        ["vw1", "dbc", "metadata", { kind: "bi" }],
+        ["vw2", "dbc", "metadata", { kind: "bi" }],
+        ["dbc", "lake", "tables"],
+        ["sdx", "dbc", "policies", { kind: "control" }],
+      ],
     },
     dataFlow: {
       nodes: [
@@ -465,6 +594,20 @@ const cdw = {
     { title: "Network KPI dashboards", scenario: "Interactive BI over CDRs.", industryIds: ["telco"] },
   ],
   relatedComponentIds: ["apache-impala", "apache-hive", "trino", "cloudera-data-lakehouse", "cloudera-sdx"],
+  booth: {
+    oneLiner: "Many isolated SQL warehouses on one governed copy of the data.",
+    trace: { label: "One catalog, many warehouses", nodes: ["bi", "vw1", "dbc", "lake"] },
+    nodes: {
+      cp: { micro: "Handles every operation from the UI or CLI: create, upgrade, suspend and resume." },
+      dbc: { micro: "A logical collection of table metadata and permissions, backed by a Hive metastore. Many virtual warehouses can query one catalog.", path: ["Virtual Warehouse", "Database Catalog", "Lakehouse data"] },
+      vw1: { micro: "Compute running in Kubernetes that executes authorized queries. Scales automatically with concurrency." },
+      vw2: { micro: "Different size or engine, same data. Workloads stay isolated from each other." },
+      lake: { micro: "The object store in the secure data lake holds the actual data." },
+    },
+    officialArchitecture: "https://docs.cloudera.com/data-warehouse/cloud/overview/topics/dw-service-architecture.html",
+    deploymentModels: ["Cloudera on cloud", "Cloudera on premises"],
+    verificationDate: "2026-10-07",
+  },
 };
 
 const agentStudio = {
@@ -555,6 +698,223 @@ const agentStudio = {
     { title: "Clinical operations assistant", scenario: "Answer questions over trial data.", industryIds: ["pharma"] },
   ],
   relatedComponentIds: ["cloudera-ai", "ai-2", "apache-iceberg", "nvidia", "cloudera-sdx"],
+  booth: {
+    oneLiner: "Build governed AI agents and multi-agent workflows on private data.",
+    trace: { label: "Agent at work", nodes: ["builder", "wf", "tools", "ice"] },
+    nodes: {
+      wf: { micro: "Agents with roles and tools collaborate on one task.", path: ["Task", "Plan", "Call tools", "Answer"] },
+      tools: { micro: "MCP servers and APIs connect agents to enterprise systems, such as Iceberg tables." },
+      llm: { micro: "Agents can reason with a model served privately by Cloudera AI Inference." },
+    },
+    unverified: ["Exact agent framework internals per release"],
+    verificationDate: "2026-10-07",
+  },
 };
 
-export default [cdai, cde, cdl, cdf, cdw, agentStudio, cds2Group, de2, dl2, ai2, df2];
+// Sources: cloudera.com/products/machine-learning/ai-workbench.html and the Cloudera AI
+// architecture overview (docs.cloudera.com/machine-learning/cloud/architecture-overview).
+const aiWorkbench = {
+  id: "cloudera-ai-workbench",
+  name: "Cloudera AI Workbench",
+  aka: "formerly Cloudera Machine Learning Workspace",
+  origin: "cloudera",
+  category: "cloudera-services",
+  parentId: "cloudera-ai",
+  tagline: "Governed workspace to explore data and build, train and fine-tune models.",
+  overview:
+    "Cloudera AI Workbench is the development environment of Cloudera AI. Teams create projects, work in notebooks or their preferred editor (Jupyter, VS Code, RStudio) inside isolated containerized sessions with custom ML runtimes, use AMPs and AI Studios, and deploy prototypes. Cloudera documents it as a three-tier application: a web tier (UI and APIs), an application tier of user workloads isolated in Kubernetes namespaces with autoscaling, and a data tier (Postgres metadata and NFS project files).",
+  businessValue: "Data scientists get self-service compute next to governed data, without copying data out to unmanaged tools.",
+  capabilities: ["Projects and collaborative notebooks", "Jupyter, VS Code or RStudio editors", "Custom ML runtimes (Python, R, Scala, Spark, GPU)", "Scale-out CPU and GPU compute", "AMPs and AI Studios", "Prototype deployment"],
+  workflow: {
+    title: "From idea to registered model",
+    stages: [
+      ["project", "Create a project", "Start new or import existing code."],
+      ["session", "Launch a session", "An isolated container with the chosen runtime and editor starts in Kubernetes."],
+      ["explore", "Explore governed data", "Read lakehouse tables under SDX policies.", "cloudera-sdx"],
+      ["train", "Train or fine-tune", "Run training on CPU or GPU and track results."],
+      ["register", "Register the model", "Hand the version to production through the registry.", "ai-inference-service"],
+    ],
+  },
+  views: {
+    internal: {
+      nodes: [
+        ["users", "Data scientists", "Browser, API or local IDE.", "client"],
+        ["web", "Web tier", "UI and APIs over HTTPS and WebSocket.", "core"],
+        { id: "app", label: "Application tier", kind: "focus", description: "User workloads in isolated Kubernetes namespaces with node autoscaling.",
+          children: [["sessions", "Sessions", "Interactive containers per user."], ["jobs", "Jobs", "Scheduled workloads."], ["apps", "Applications", "Hosted apps and prototypes."]],
+          childEdges: [] },
+        ["runtimes", "ML runtimes", "Container images for Python, R, Scala, Spark and GPU.", "core"],
+        ["meta", "Metadata store", "Postgres for sessions, jobs, models and applications.", "store"],
+        ["files", "Project files", "NFS-backed storage for code, libraries and small data.", "store"],
+        ["data", "Governed data", "Lakehouse tables under SDX.", "store", "cloudera-data-lakehouse"],
+      ],
+      edges: [
+        ["users", "web"],
+        ["web", "app", "launch"],
+        ["runtimes", "app", "images", { kind: "control" }],
+        ["app", "meta", "state"],
+        ["app", "files", "code"],
+        ["data", "app", "governed access"],
+      ],
+    },
+    dataFlow: {
+      nodes: [["tables", "Governed tables", "", "store", "cloudera-data-lakehouse"], ["session", "Session", "Explore and prepare.", "core"], ["model", "Trained model", "", "data"], ["inference", "AI Inference", "", "cloudera", "ai-inference-service"]],
+      edges: [["tables", "session"], ["session", "model", "train"], ["model", "inference", "deploy"]],
+    },
+    deployment: {
+      nodes: [["cloud", "Cloudera on cloud", "", "cloud", "cloud-deployment"], ["onprem", "Cloudera on premises", "", "cloudera", "on-premises-deployment"], ["focus", "AI Workbench", "", "focus"]],
+      edges: [["cloud", "focus"], ["onprem", "focus"]],
+    },
+  },
+  io: { inputs: ["Governed tables", "Code and notebooks"], outputs: ["Trained models", "Prototype apps"], dependencies: ["Kubernetes", "SDX"], connectors: ["Data connections to warehouse and Spark"], apis: ["Cloudera AI API v2"], integrations: ["AI Inference service", "AI Studios", "AMPs"] },
+  ops: { security: "Per-user namespaces; TLS between services; SDX-governed data access.", governance: "Project-level access; lineage for governed data.", monitoring: "Session and job resource usage.", scalability: "Kubernetes node autoscaling based on demand." },
+  clouderaContext: { standalone: "A Cloudera product built on open tools such as Jupyter and Kubernetes.", clouderaIntegration: "The development side of Cloudera AI; models move to the AI Inference service for production.", realWorld: "A bank's data science team fine-tunes a model on governed transaction data in GPU sessions." },
+  useCases: [{ title: "Governed data science", scenario: "Self-service notebooks next to governed data.", industryIds: ["financial", "insurance"] }],
+  relatedComponentIds: ["cloudera-ai", "ai-studios", "ai-inference-service", "cloudera-sdx"],
+  booth: {
+    oneLiner: "Explore data and build, train and fine-tune models in one governed workspace.",
+    trace: { label: "Session lifecycle", nodes: ["users", "web", "app", "files"] },
+    nodes: {
+      app: { micro: "Each user's workloads run isolated in their own Kubernetes namespace. Compute scales with demand.", path: ["Session", "Job", "Application"] },
+      runtimes: { micro: "Choose Python, R, Scala, Spark or GPU images; bring your own libraries." },
+    },
+    officialArchitecture: "https://docs.cloudera.com/machine-learning/cloud/architecture-overview/topics/ml-architecture-overview-cml.html",
+    officialProductPage: "https://www.cloudera.com/products/machine-learning/ai-workbench.html",
+    deploymentModels: ["Cloudera on cloud", "Cloudera on premises"],
+    verificationDate: "2026-10-07",
+  },
+};
+
+// Sources: cloudera.com/products/enterprise-ai/ai.html (AI Studios listed as a key feature) and the
+// AI Workbench page (AI Studios for synthetic data, fine-tuning, RAG and multi-agent workflows).
+const aiStudios = {
+  id: "ai-studios",
+  name: "Cloudera AI Studios",
+  origin: "cloudera",
+  category: "cloudera-services",
+  parentId: "cloudera-ai",
+  tagline: "Low-code studios for RAG, fine-tuning, synthetic data and agent workflows.",
+  overview:
+    "Cloudera AI Studios are low-code to full-code tools inside Cloudera AI for building private generative and agentic AI. Cloudera's AI Workbench page lists studios for synthetic data, fine-tuning, RAG and multi-agent workflows, and the Cloudera AI product page positions them for moving from concept to MVP quickly.",
+  businessValue: "Teams of any skill level prototype GenAI use cases on private data in days.",
+  capabilities: ["RAG studio", "Fine-tuning studio", "Synthetic data studio", "Agent workflows (Agent Studio)"],
+  workflow: {
+    title: "Retrieval-augmented generation",
+    stages: [
+      ["docs", "Enterprise documents", "Governed documents and tables are the knowledge source.", "cloudera-data-lakehouse"],
+      ["retrieve", "Retrieve context", "Relevant passages are found for the question."],
+      ["augment", "Augment the prompt", "The retrieved context is added to the prompt."],
+      ["infer", "Inference", "A privately served model answers.", "ai-inference-service"],
+      ["answer", "Grounded answer", "The answer cites enterprise context."],
+    ],
+  },
+  views: {
+    internal: {
+      nodes: [
+        ["builder", "Builder", "Low-code UI or full code.", "client"],
+        { id: "studios", label: "AI Studios", kind: "focus", description: "Studios for common GenAI patterns.",
+          children: [["rag", "RAG", "Ground answers in enterprise content."], ["ft", "Fine-tuning", "Adapt a model to your domain."], ["syn", "Synthetic data", "Generate training data."], ["agents", "Agent workflows", "Multi-agent apps.", "cloudera", "cloudera-agent-studio"]],
+          childEdges: [] },
+        ["data", "Governed data", "Documents and tables.", "store", "cloudera-data-lakehouse"],
+        ["inference", "AI Inference", "Private model endpoints.", "cloudera", "ai-inference-service"],
+        ["app", "AI application", "Assistant, agent or API.", "client"],
+      ],
+      edges: [["builder", "studios"], ["data", "studios", "context"], ["studios", "inference", "prompts"], ["studios", "app", "deploy"]],
+    },
+    dataFlow: {
+      nodes: [["docs", "Enterprise documents", "", "store", "cloudera-data-lakehouse"], ["retrieve", "Retrieve", "", "core"], ["augment", "Augment prompt", "", "core"], ["model", "Private model", "", "cloudera", "ai-inference-service"], ["answer", "Grounded answer", "", "client"]],
+      edges: [["docs", "retrieve"], ["retrieve", "augment"], ["augment", "model"], ["model", "answer"]],
+    },
+    deployment: {
+      nodes: [["ai", "Cloudera AI", "", "cloudera", "cloudera-ai"], ["focus", "AI Studios", "", "focus"], ["inference", "AI Inference", "", "cloudera", "ai-inference-service"]],
+      edges: [["ai", "focus"], ["focus", "inference"]],
+    },
+  },
+  io: { inputs: ["Documents", "Tables", "Prompts"], outputs: ["GenAI apps", "Fine-tuned models", "Synthetic datasets"], dependencies: ["Cloudera AI", "Model endpoint"], connectors: ["Governed data connections"], apis: ["Deployed application endpoints"], integrations: ["AI Inference service", "Agent Studio"] },
+  ops: { security: "Runs inside the customer environment with governed data access.", governance: "SDX policies on source data.", monitoring: "Application and endpoint metrics.", scalability: "Scales with Cloudera AI compute." },
+  clouderaContext: { standalone: "A Cloudera product.", clouderaIntegration: "Part of Cloudera AI, between AI Workbench and the AI Inference service.", realWorld: "A support team builds a RAG assistant over product manuals without data leaving the tenant." },
+  useCases: [{ title: "Private knowledge assistant", scenario: "RAG over internal documents.", industryIds: ["insurance", "pharma"] }],
+  relatedComponentIds: ["cloudera-ai", "cloudera-ai-workbench", "ai-inference-service", "cloudera-agent-studio"],
+  booth: {
+    oneLiner: "Low-code studios for RAG, fine-tuning, synthetic data and agent workflows.",
+    trace: { label: "RAG", nodes: ["data", "studios", "inference", "app"] },
+    nodes: {
+      rag: { micro: "Retrieve enterprise context, augment the prompt, then run inference.", path: ["Retrieve", "Augment", "Inference"] },
+      ft: { micro: "Adapt an open model to your domain using governed data." },
+    },
+    officialProductPage: "https://www.cloudera.com/products/enterprise-ai/ai.html",
+    verificationDate: "2026-10-07",
+  },
+};
+
+// Source: Cloudera blog "Cloudera AI Inference service enables easy integration and deployment of GenAI" (Dec 2024).
+const aiInference = {
+  id: "ai-inference-service",
+  name: "Cloudera AI Inference service",
+  origin: "cloudera",
+  category: "cloudera-services",
+  parentId: "cloudera-ai",
+  tagline: "Secure, autoscaling serving for production GenAI and predictive models.",
+  overview:
+    "The Cloudera AI Inference service is the production-serving end of the MLOps/LLMOps pipeline and complements AI Workbench. Cloudera describes its architecture as KServe and Knative for model and application orchestration (autoscaling including scale to zero), optimized model servers, an Istio service mesh with Apache Knox and Apache Ranger for authentication and authorization, request/response payloads shipped to Apache Iceberg tables for monitoring, and Prometheus metrics. Models integrate with apps through the OpenAI API and the Open Inference Protocol. NVIDIA NIM microservices are embedded (announced Oct 2024).",
+  businessValue: "Serve private models at enterprise scale without sending prompts or data to third parties.",
+  capabilities: ["KServe/Knative orchestration with scale to zero", "Knox + Ranger authentication and authorization", "Payload logging to Iceberg", "Prometheus metrics", "OpenAI API and Open Inference Protocol", "NVIDIA NIM support"],
+  workflow: {
+    title: "Serving a model",
+    stages: [
+      ["model", "Model ready", "Trained in AI Workbench or brought in pre-trained.", "cloudera-ai-workbench"],
+      ["deploy", "Deploy endpoint", "KServe creates the deployment; Knative manages scaling."],
+      ["request", "Authenticated request", "Istio with Knox and Ranger checks every call.", "apache-ranger"],
+      ["serve", "Optimized model server", "The model server returns a prediction or completion.", "nvidia"],
+      ["observe", "Observe", "Metrics go to Prometheus; payloads land in Iceberg for monitoring.", "apache-iceberg"],
+    ],
+  },
+  views: {
+    internal: {
+      nodes: [
+        ["apps", "Apps & agents", "Chatbots, RAG pipelines, batch and real-time predictions.", "client"],
+        ["mesh", "Service mesh", "Istio with Apache Knox and Apache Ranger for authN/authZ.", "security", "apache-ranger"],
+        ["orch", "KServe + Knative", "Model and application orchestration; autoscaling to zero.", "focus"],
+        ["servers", "Model servers", "Optimized frameworks, including NVIDIA NIM.", "core", "nvidia"],
+        ["iceberg", "Payload log (Iceberg)", "Requests and responses for monitoring and governance.", "store", "apache-iceberg"],
+        ["metrics", "Prometheus metrics", "Latency and throughput.", "data"],
+        ["wb", "AI Workbench", "Train or fine-tune, then deploy.", "cloudera", "cloudera-ai-workbench"],
+      ],
+      edges: [
+        ["apps", "mesh", "OpenAI API"],
+        ["mesh", "orch"],
+        ["orch", "servers", "route"],
+        ["wb", "orch", "deploy", { kind: "control" }],
+        ["servers", "iceberg", "payloads", { kind: "optional" }],
+        ["servers", "metrics", "metrics", { kind: "optional" }],
+      ],
+    },
+    dataFlow: {
+      nodes: [["req", "Request", "", "client"], ["auth", "Knox + Ranger", "", "security", "apache-ranger"], ["model", "Model server", "", "core"], ["resp", "Response", "", "client"], ["log", "Iceberg payload log", "", "store", "apache-iceberg"]],
+      edges: [["req", "auth"], ["auth", "model"], ["model", "resp"], ["model", "log", "", { kind: "optional" }]],
+    },
+    deployment: {
+      nodes: [["k8s", "Kubernetes", "", "core"], ["focus", "AI Inference service", "", "focus"], ["gpu", "GPU nodes", "", "vendor", "nvidia"]],
+      edges: [["k8s", "focus"], ["gpu", "focus", "", { kind: "optional" }]],
+    },
+  },
+  io: { inputs: ["Models from Workbench or registries", "Inference requests"], outputs: ["Predictions and completions", "Payload logs", "Metrics"], dependencies: ["Kubernetes", "GPU nodes for LLMs"], connectors: ["OpenAI API", "Open Inference Protocol"], apis: ["Inference endpoints", "Service accounts for CI/CD"], integrations: ["NVIDIA NIM", "AI Workbench", "Apache Iceberg"] },
+  ops: { security: "Knox and Ranger via the Istio mesh; authenticated endpoints.", governance: "Payloads in Iceberg for audit and model monitoring.", monitoring: "Prometheus metrics.", scalability: "Hundreds of models; each deployment scales to many replicas and down to zero." },
+  clouderaContext: { standalone: "A Cloudera service built on open-source serving components (KServe, Knative, Istio).", clouderaIntegration: "The production side of Cloudera AI.", realWorld: "An insurer serves a private claims-summarization LLM on GPUs; no prompts leave the environment." },
+  useCases: [{ title: "Private LLM serving", scenario: "GenAI endpoints inside the enterprise.", industryIds: ["insurance", "financial", "healthcare"] }],
+  relatedComponentIds: ["cloudera-ai", "cloudera-ai-workbench", "nvidia", "apache-ranger", "apache-iceberg"],
+  booth: {
+    oneLiner: "Secure, autoscaling serving for production GenAI and predictive models.",
+    trace: { label: "One inference request", nodes: ["apps", "mesh", "orch", "servers", "iceberg"] },
+    nodes: {
+      mesh: { micro: "Every request is authenticated and authorized by Knox and Ranger in the service mesh." },
+      orch: { micro: "KServe deploys models; Knative scales them, all the way to zero.", path: ["Request", "Route", "Scale", "Serve"] },
+      servers: { micro: "Optimized model servers run the model, including NVIDIA NIM.", video: "ai-inference-secure" },
+      iceberg: { micro: "Requests and responses are written to Iceberg tables for monitoring and governance." },
+    },
+    officialArchitecture: "https://www.cloudera.com/blog/technical/cloudera-ai-inference-service-enables-easy-integration-and-deployment-of-genai.html",
+    verificationDate: "2026-10-07",
+  },
+};
+
+export default [cdai, aiWorkbench, aiStudios, aiInference, cde, cdl, cdf, cdw, agentStudio, cds2Group, de2, dl2, ai2, df2];

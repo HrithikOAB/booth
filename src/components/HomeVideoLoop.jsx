@@ -1,53 +1,81 @@
 import { useEffect, useRef, useState } from "react";
 import { loopPlaylist } from "../data/services.js";
 
-export default function HomeVideoLoop() {
-  const videoRef = useRef(null);
-  const [index, setIndex] = useState(0);
-  const current = loopPlaylist[index];
+const ids = loopPlaylist.map((c) => c.youtubeId);
 
-  useEffect(() => {
-    const el = videoRef.current;
-    if (!el) return;
-    el.load();
-    const p = el.play();
-    if (p?.catch) p.catch(() => {});
-  }, [index]);
-
-  useEffect(() => {
-    const el = videoRef.current;
-    if (!el?.textTracks) return;
-    const enableCaptions = () => {
-      for (let i = 0; i < el.textTracks.length; i++) {
-        el.textTracks[i].mode = "showing";
-      }
+// Load the YouTube IFrame Player API once and resolve when it's ready.
+let apiPromise;
+function loadYouTubeApi() {
+  if (typeof window === "undefined") return Promise.resolve(null);
+  if (window.YT?.Player) return Promise.resolve(window.YT);
+  if (apiPromise) return apiPromise;
+  apiPromise = new Promise((resolve) => {
+    const prev = window.onYouTubeIframeAPIReady;
+    window.onYouTubeIframeAPIReady = () => {
+      prev?.();
+      resolve(window.YT);
     };
-    enableCaptions();
-    el.addEventListener("loadedmetadata", enableCaptions);
-    return () => el.removeEventListener("loadedmetadata", enableCaptions);
-  }, [index, current.slug]);
+    const tag = document.createElement("script");
+    tag.src = "https://www.youtube.com/iframe_api";
+    document.head.appendChild(tag);
+  });
+  return apiPromise;
+}
 
-  const goNext = () => setIndex((i) => (i + 1) % loopPlaylist.length);
+/** Muted, looping YouTube playlist that plays as the home attract background. */
+export default function HomeVideoLoop() {
+  const hostRef = useRef(null);
+  const playerRef = useRef(null);
+  const [index, setIndex] = useState(0);
+
+  useEffect(() => {
+    let destroyed = false;
+    loadYouTubeApi().then((YT) => {
+      if (destroyed || !YT || !hostRef.current) return;
+      playerRef.current = new YT.Player(hostRef.current, {
+        width: "100%",
+        height: "100%",
+        playerVars: {
+          autoplay: 1,
+          mute: 1,
+          controls: 0,
+          rel: 0,
+          modestbranding: 1,
+          playsinline: 1,
+          disablekb: 1,
+          fs: 0,
+          iv_load_policy: 3,
+        },
+        events: {
+          onReady: (e) => {
+            e.target.mute();
+            e.target.loadPlaylist({ playlist: ids, index: 0 });
+            e.target.setLoop(true);
+            e.target.playVideo();
+          },
+          onStateChange: (e) => {
+            if (e.data === YT.PlayerState.PLAYING) {
+              const i = e.target.getPlaylistIndex?.();
+              if (typeof i === "number" && i >= 0) setIndex(i);
+            }
+          },
+        },
+      });
+    });
+    return () => {
+      destroyed = true;
+      playerRef.current?.destroy?.();
+      playerRef.current = null;
+    };
+  }, []);
+
+  const current = loopPlaylist[index] ?? loopPlaylist[0];
 
   return (
     <div className="home-video-loop">
-      <video
-        ref={videoRef}
-        key={current.slug}
-        className="home-video-loop__player"
-        autoPlay
-        muted
-        playsInline
-        preload="auto"
-        crossOrigin="anonymous"
-        onEnded={goNext}
-        onError={goNext}
-      >
-        <source src={`/videos/${current.slug}.mp4`} type="video/mp4" />
-        {current.captions && (
-          <track kind="captions" src={current.captions} srcLang="en" label="English" default />
-        )}
-      </video>
+      <div className="home-video-loop__player">
+        <div ref={hostRef} />
+      </div>
       <div className="loop-brand">cloud<span>era</span></div>
       <div className="now-playing">
         <span className="dot" />
@@ -55,7 +83,7 @@ export default function HomeVideoLoop() {
       </div>
       <div className="loop-pips">
         {loopPlaylist.map((clip, i) => (
-          <span key={clip.slug} className={`pip${i === index ? " active" : ""}`} />
+          <span key={clip.youtubeId} className={`pip${i === index ? " active" : ""}`} />
         ))}
       </div>
     </div>

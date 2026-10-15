@@ -3,7 +3,9 @@ dist
 .DS_Store
 *.log
 .vite
-Videos/*
-Videos/.*.mp4
 
-dist/videos/.*.mp4
+# No bundled video — the app uses YouTube embeds only.
+Videos/
+public/videos/
+*.mp4
+*.vtt

@@ -57,6 +57,13 @@ const nodeMap = {
   "onprem-s3": { id: "s3-storage", context: "onprem" },
   "onprem-nvidia": { id: "nvidia" },
   "onprem-amd": { id: "amd" },
+
+  // ---- Deploy anywhere: hybrid building blocks ----
+  "hybrid-core": { id: "hybrid-cloud" },
+  "hybrid-auth": { id: "hybrid-cloud", context: "auth" },
+  "hybrid-meta": { id: "hybrid-cloud", context: "meta" },
+  "hybrid-net": { id: "hybrid-cloud", context: "net" },
+  "hybrid-port": { id: "hybrid-cloud", context: "port" },
 };
 
 export default nodeMap;

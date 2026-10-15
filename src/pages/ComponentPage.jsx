@@ -1,160 +1,152 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
-import { componentById, resourcesFor, diagramNodesFor, CATEGORIES } from "../data/registry/index.js";
-import { OriginBadge } from "../components/component-page/MediaCards.jsx";
-import {
-  SECTIONS,
-  OverviewSection,
-  ArchitectureSection,
-  WorkflowSection,
-  IOSection,
-  DataFlowSection,
-  DeploymentSection,
-  SecuritySection,
-  ContextSection,
-  UseCasesSection,
-  ResourcesSection,
-  RelatedRail,
-} from "../components/component-page/Sections.jsx";
+import { componentById, resourcesFor, primaryNodeFor, BOOTH_VIEW_META } from "../data/registry/index.js";
+import ArchitectureCanvas from "../components/explorer/ArchitectureCanvas.jsx";
+import StageTopBar from "../components/stage/StageTopBar.jsx";
+import ActionDock from "../components/stage/ActionDock.jsx";
+import NodeMicroPanel, { ComponentOverviewPanel } from "../components/stage/NodeMicroPanel.jsx";
+import VideoModal from "../components/stage/VideoModal.jsx";
+import VideoDrawer, { videoGroups } from "../components/stage/VideoDrawer.jsx";
+import DocsModal from "../components/stage/DocsModal.jsx";
+import ZoomIn from "../components/stage/ZoomIn.jsx";
+import { OWNERSHIP } from "../data/registry/schema.js";
 
-const CONTEXT_LABEL = { base: "Cloudera Base pillar", anywhere: "Anywhere Cloud pillar", onprem: "On-premises deployment", fabric: "Anywhere Cloud fabric core" };
-
-function regionLabel(nodeId) {
-  if (nodeId.startsWith("base-") || nodeId.startsWith("eng-")) return "Base pillar";
-  if (nodeId.startsWith("flow-")) return "Connector flow";
-  if (nodeId.startsWith("cloud-") || nodeId.startsWith("onprem-") || nodeId.startsWith("deploy-")) return "Deployment footer";
-  return "Anywhere Cloud pillar";
+function ancestors(c) {
+  const out = [];
+  let p = c.parentId && componentById[c.parentId];
+  while (p && out.length < 3) {
+    out.unshift(p);
+    p = p.parentId && componentById[p.parentId];
+  }
+  return out;
 }
 
+function firstDocUrl(c) {
+  const docs = resourcesFor(c.id).docs.filter((d) => d.verified);
+  return (docs.find((d) => d.kind === "architecture" || d.kind === "docs") ?? docs[0])?.url ?? null;
+}
+
+/** Level 2: one full-screen architecture stage per component. The diagram is the content. */
 export default function ComponentPage() {
   const { componentId } = useParams();
   const [params] = useSearchParams();
   const navigate = useNavigate();
   const c = componentById[componentId];
-  const scrollRef = useRef(null);
-  const [active, setActive] = useState("overview");
+  // `?context=<nodeId>` (from a Level-1 block) preselects that node; a trace node starts the trace.
+  const context = params.get("context");
+  const contextNode = c?.views.internal?.nodes.some((n) => n.id === context) ? context : null;
+  const startTrace = Boolean(contextNode && c.booth.traceFrom.includes(contextNode));
+
+  const [view, setView] = useState("internal");
+  const [playSignal, setPlaySignal] = useState(0);
+  const [selected, setSelected] = useState(null);
+  const [video, setVideo] = useState(null);
+  const [docsFor, setDocsFor] = useState(null);
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
   useEffect(() => {
-    scrollRef.current?.scrollTo({ top: 0 });
-    setActive("overview");
+    setView("internal");
+    setPlaySignal(0);
+    setSelected(null);
+    setVideo(null);
+    setDocsFor(null);
+    setDrawerOpen(false);
   }, [componentId]);
 
-  useEffect(() => {
-    const root = scrollRef.current;
-    if (!root) return undefined;
-    const io = new IntersectionObserver(
-      (entries) => {
-        const vis = entries.filter((e) => e.isIntersecting).sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
-        if (vis[0]) setActive(vis[0].target.id);
-      },
-      { root, rootMargin: "-20% 0px -65% 0px" },
-    );
-    root.querySelectorAll(".cp-section").forEach((s) => io.observe(s));
-    return () => io.disconnect();
-  }, [componentId]);
+  const trail = useMemo(() => (c ? ancestors(c) : []), [c]);
+  const hasVideos = useMemo(() => {
+    if (!c) return false;
+    const g = videoGroups(c);
+    return g.own.length > 0 || g.related.length > 0;
+  }, [c]);
+  const closeDrawer = useCallback(() => setDrawerOpen(false), []);
+
+  const goPlatform = useCallback(() => {
+    const chain = c ? [c, ...ancestors(c).reverse()] : [];
+    const nodeId = chain.map((x) => primaryNodeFor(x.id)).find(Boolean);
+    navigate(nodeId ? `/explore/v2?focus=${nodeId}` : "/explore/v2");
+  }, [c, navigate]);
+
+  const openVideo = useCallback((owner, item) => {
+    const vids = resourcesFor(owner.id).videos;
+    setVideo({ owner, videos: vids, start: Math.max(0, vids.indexOf(vids.find((v) => (v.id ?? v.src) === (item?.id ?? item?.src)))) });
+  }, []);
+
+  const renderPanel = useCallback(
+    (p) => (
+      <NodeMicroPanel
+        {...p}
+        component={c}
+        onWatch={openVideo}
+        onDocs={(target) => setDocsFor(target)}
+        onExplore={(target) => navigate(target.route)}
+      />
+    ),
+    [c, openVideo, navigate],
+  );
+  const renderIdlePanel = useCallback(
+    () => <ComponentOverviewPanel key={c.id} component={c} hasMoreVideos={hasVideos} onWatchAll={() => setDrawerOpen(true)} onDocs={(t) => setDocsFor(t)} />,
+    [c, hasVideos],
+  );
 
   if (!c) {
     return (
-      <div className="page-scroll">
-        <div className="cp-missing">
-          <h1>Component not found</h1>
-          <p>No page exists for “{componentId}”.</p>
-          <Link className="btn-link" to="/components">
-            Browse all components →
-          </Link>
-        </div>
+      <div className="st st--missing">
+        <h1>Component not found</h1>
+        <Link className="st-dock-btn" to="/explore/v2">
+          ← Platform
+        </Link>
       </div>
     );
   }
 
-  const context = params.get("context");
-  const contextNote = context && c.contexts?.[context];
-  const cat = CATEGORIES.find((x) => x.id === c.category);
-  const parent = c.parentId ? componentById[c.parentId] : null;
-  const prevEdition = c.previousEditionId ? componentById[c.previousEditionId] : null;
-  const appears = diagramNodesFor(c.id).map((a) => ({ ...a, label: (a.context && CONTEXT_LABEL[a.context]) || regionLabel(a.nodeId) }));
-  const appearsIn = appears.filter((a, i) => appears.findIndex((b) => b.label === a.label) === i);
-  const resources = resourcesFor(c.id);
-
-  const jump = (id) => {
-    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    document.getElementById(id)?.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
-  };
-
+  const focusTag = OWNERSHIP[c.booth.ownership]?.label;
   return (
-    <div className="page-scroll" ref={scrollRef}>
-      <div className="cp">
-        <div className="cp-topbar">
-          <button type="button" className="back-btn" onClick={() => (window.history.length > 1 ? navigate(-1) : navigate("/explore/v2"))}>
-            ← Back
-          </button>
-          <nav className="crumbs" aria-label="Breadcrumb">
-            <ol>
-              <li>
-                <Link to="/explore/v2">Architecture</Link>
-              </li>
-              <li>
-                <Link to={`/components?category=${c.category}`}>{cat?.label ?? c.category}</Link>
-              </li>
-              {parent && (
-                <li>
-                  <Link to={parent.route}>{parent.name}</Link>
-                </li>
-              )}
-              <li aria-current="page">{c.name}</li>
-            </ol>
-          </nav>
-        </div>
-
-        <header className="cp-hero">
-          <div className="cp-badges">
-            <OriginBadge origin={c.origin} />
-            {c.edition && <span className="badge badge--outline">{c.edition}</span>}
-            {c.illustrative && <span className="badge badge--warn">Illustrative integration</span>}
-            {c.needsVerification && <span className="badge badge--warn">Needs verification</span>}
-          </div>
-          <h1>{c.name}</h1>
-          {c.aka && <p className="cp-aka">{c.aka}</p>}
-          <p className="cp-tagline">{c.tagline}</p>
-          {contextNote && (
-            <p className="cp-context" role="note">
-              <strong>Opened from {CONTEXT_LABEL[context] ?? context}:</strong> {contextNote}
-            </p>
-          )}
-          {prevEdition && (
-            <p className="cp-context">
-              Next edition of <Link to={prevEdition.route}>{prevEdition.name}</Link>.
-            </p>
-          )}
-        </header>
-
-        <div className="cp-layout">
-          <nav className="cp-toc" aria-label="On this page">
-            <ol>
-              {SECTIONS.map((s, i) => (
-                <li key={s.id}>
-                  <button type="button" className={active === s.id ? "on" : ""} aria-current={active === s.id ? "true" : undefined} onClick={() => jump(s.id)}>
-                    <span>{String(i + 1).padStart(2, "0")}</span> {s.label}
-                  </button>
-                </li>
-              ))}
-            </ol>
-          </nav>
-          <div className="cp-main" key={c.id}>
-            <OverviewSection c={c} appearsIn={appearsIn} />
-            <ArchitectureSection c={c} />
-            <WorkflowSection c={c} />
-            <IOSection c={c} />
-            <DataFlowSection c={c} />
-            <DeploymentSection c={c} />
-            <SecuritySection c={c} />
-            <ContextSection c={c} />
-            <UseCasesSection c={c} />
-            <ResourcesSection resources={resources} />
-            <RelatedRail c={c} />
-          </div>
-        </div>
+    <ZoomIn className="st" key={c.id}>
+      <StageTopBar component={c} trail={trail} nodeLabel={selected?.label} onPlatform={goPlatform} onCrumb={(x) => navigate(x.route)} />
+      <div className="st-stage">
+        <ArchitectureCanvas
+          key={c.id}
+          variant="booth"
+          views={c.views}
+          meta={BOOTH_VIEW_META}
+          activeView={view}
+          onViewChange={setView}
+          playSignal={playSignal}
+          trace={c.booth.trace}
+          traceSignal={startTrace ? 1 : 0}
+          initialSelectedId={startTrace ? null : contextNode}
+          focusTag={focusTag}
+          renderPanel={renderPanel}
+          renderIdlePanel={renderIdlePanel}
+          onSelectionChange={setSelected}
+          title={`${c.name} architecture`}
+        />
       </div>
-    </div>
+      <ActionDock
+        canWatch={hasVideos}
+        canIntegrate={Boolean(c.views.integration)}
+        activeView={view}
+        onWatch={() => setDrawerOpen(true)}
+        onHowItWorks={() => {
+          setView("workflow");
+          setPlaySignal((n) => n + 1);
+        }}
+        onIntegrations={() => setView("integration")}
+        onDocs={() => setDocsFor(c)}
+      />
+      {video && (
+        <VideoModal
+          videos={video.videos}
+          startIndex={video.start}
+          title={video.owner.name}
+          subtitle={video.owner.booth.oneLiner}
+          docUrl={firstDocUrl(video.owner)}
+          onClose={() => setVideo(null)}
+        />
+      )}
+      {drawerOpen && <VideoDrawer component={c} onClose={closeDrawer} />}
+      {docsFor && <DocsModal title={docsFor.name} docs={resourcesFor(docsFor.id).docs} onClose={() => setDocsFor(null)} />}
+    </ZoomIn>
   );
 }

@@ -1,5 +1,3 @@
-const v = (slug) => `/videos/${slug}.mp4`;
-
 export const industries = [
   {
     id: "financial",
@@ -126,7 +124,6 @@ export const industries = [
       "Faster trial insights, integrated research data, and compliant AI for discovery.",
     relatedServiceIds: ["engineering", "lakehouse", "sdx", "privateai", "agents"],
     url: "https://www.cloudera.com/solutions/life-sciences.html",
-    video: v("pharma-clinical"),
     useCases: [
       { id: "trials", title: "Clinical trial analytics", summary: "Optimize design and recruitment with unified data.", flow: ["Trial systems", "Ingestion", "Processing", "Lakehouse", "Governance", "Analytics", "Trial outcome"], serviceIds: ["engineering", "lakehouse", "sdx"] },
       { id: "integration", title: "Research data integration", summary: "Combine genomic, clinical, and operational sources.", flow: ["Sources", "Ingestion", "Processing", "Storage", "Governance", "Analytics", "Research"], serviceIds: ["engineering", "lakehouse", "sdx"] },

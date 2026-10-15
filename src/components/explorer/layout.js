@@ -8,6 +8,10 @@ const PAD = 16;
 const HEADER = 46;
 const GAP = 14;
 
+export const DEFAULT_SIZES = { nodeW: NODE_W, nodeH: NODE_H, childW: CHILD_W, childH: CHILD_H, nodesep: 34, ranksep: 76 };
+/** Booth nodes carry only a tag + label, so they are shorter but wider and spaced further apart. */
+export const BOOTH_SIZES = { nodeW: 236, nodeH: 74, childW: 200, childH: 58, nodesep: 46, ranksep: 96 };
+
 function dagrePositions(nodes, edges, dir, sizeOf, { nodesep = 34, ranksep = 76 } = {}) {
   const g = new dagre.graphlib.Graph();
   g.setGraph({ rankdir: dir, nodesep, ranksep, marginx: 0, marginy: 0 });
@@ -30,18 +34,18 @@ function dagrePositions(nodes, edges, dir, sizeOf, { nodesep = 34, ranksep = 76 
 }
 
 /** Children of an expanded group: dagre when they have edges, otherwise a compact grid. */
-function innerLayout(node, dir) {
+function innerLayout(node, dir, sz) {
   const kids = node.children;
   let pos;
   if (node.childEdges?.length) {
-    pos = dagrePositions(kids, node.childEdges, dir === "LR" ? "TB" : "LR", () => ({ w: CHILD_W, h: CHILD_H }), { nodesep: GAP, ranksep: 40 });
+    pos = dagrePositions(kids, node.childEdges, dir === "LR" ? "TB" : "LR", () => ({ w: sz.childW, h: sz.childH }), { nodesep: GAP, ranksep: 40 });
   } else {
     const cols = kids.length <= 3 ? 1 : 2;
     pos = {};
     kids.forEach((k, i) => {
       const c = i % cols;
       const r = Math.floor(i / cols);
-      pos[k.id] = { x: c * (CHILD_W + GAP), y: r * (CHILD_H + GAP), w: CHILD_W, h: CHILD_H };
+      pos[k.id] = { x: c * (sz.childW + GAP), y: r * (sz.childH + GAP), w: sz.childW, h: sz.childH };
     });
   }
   const all = Object.values(pos);
@@ -53,16 +57,16 @@ function innerLayout(node, dir) {
     p.x = p.x - minX + PAD;
     p.y = p.y - minY + HEADER;
   });
-  return { pos, w: Math.max(NODE_W, maxX - minX + PAD * 2), h: maxY - minY + HEADER + PAD };
+  return { pos, w: Math.max(sz.nodeW, maxX - minX + PAD * 2), h: maxY - minY + HEADER + PAD };
 }
 
-function radialPositions(nodes) {
+function radialPositions(nodes, sz) {
   const [hub, ...spokes] = nodes;
-  const r = Math.max(280, spokes.length * 54);
-  const out = { [hub.id]: { x: -NODE_W / 2, y: -NODE_H / 2, w: NODE_W, h: NODE_H } };
+  const r = Math.max(300, spokes.length * 58);
+  const out = { [hub.id]: { x: -sz.nodeW / 2, y: -sz.nodeH / 2, w: sz.nodeW, h: sz.nodeH } };
   spokes.forEach((n, i) => {
     const a = (i / spokes.length) * Math.PI * 2 - Math.PI / 2;
-    out[n.id] = { x: Math.cos(a) * r - NODE_W / 2, y: Math.sin(a) * r * 0.7 - NODE_H / 2, w: NODE_W, h: NODE_H };
+    out[n.id] = { x: Math.cos(a) * r - sz.nodeW / 2, y: Math.sin(a) * r * 0.7 - sz.nodeH / 2, w: sz.nodeW, h: sz.nodeH };
   });
   return out;
 }
@@ -85,15 +89,16 @@ export function flatNodes(view) {
  * Lay out a registry view for React Flow. Collapsed groups absorb edges that
  * target their children; expanded groups become parents of their children.
  */
-export function layoutView(view, expanded) {
+export function layoutView(view, expanded, sizes = DEFAULT_SIZES) {
+  const sz = { ...DEFAULT_SIZES, ...sizes };
   const dir = view.dir ?? "LR";
   const radial = view.layout === "radial";
   const parentOf = parentIndex(view);
   const inner = {};
   view.nodes.forEach((n) => {
-    if (n.children?.length && expanded.has(n.id)) inner[n.id] = innerLayout(n, dir);
+    if (n.children?.length && expanded.has(n.id)) inner[n.id] = innerLayout(n, dir, sz);
   });
-  const sizeOf = (n) => (inner[n.id] ? { w: inner[n.id].w, h: inner[n.id].h } : { w: NODE_W, h: NODE_H });
+  const sizeOf = (n) => (inner[n.id] ? { w: inner[n.id].w, h: inner[n.id].h } : { w: sz.nodeW, h: sz.nodeH });
   const lift = (id) => {
     const p = parentOf[id];
     return p && !inner[p] ? p : id;
@@ -101,8 +106,8 @@ export function layoutView(view, expanded) {
   const top = (id) => parentOf[id] ?? id;
 
   const pos = radial
-    ? radialPositions(view.nodes)
-    : dagrePositions(view.nodes, view.edges.map((e) => ({ source: top(e.source), target: top(e.target) })), dir, sizeOf);
+    ? radialPositions(view.nodes, sz)
+    : dagrePositions(view.nodes, view.edges.map((e) => (e.reverse ? { source: top(e.target), target: top(e.source) } : { source: top(e.source), target: top(e.target) })), dir, sizeOf, sz);
 
   const rfNodes = [];
   view.nodes.forEach((n) => {
@@ -132,13 +137,15 @@ export function layoutView(view, expanded) {
   const seen = new Set();
   const rfEdges = [];
   const pushEdge = (e, key) => {
-    const source = lift(e.source);
-    const target = lift(e.target);
+    // `reverse` edges flow target → source but are laid out forwards to keep the diagram readable.
+    const source = lift(e.reverse ? e.target : e.source);
+    const target = lift(e.reverse ? e.source : e.target);
     if (source === target) return;
     const k = `${source}->${target}`;
     if (seen.has(k)) return;
     seen.add(k);
-    rfEdges.push({ id: key, source, target, type: "particle", label: e.label, data: { dashed: Boolean(e.dashed), floating: radial } });
+    const kind = e.kind ?? (e.dashed ? "control" : "data");
+    rfEdges.push({ id: key, source, target, type: "particle", label: e.label, data: { kind, dashed: kind === "control", floating: radial, reverse: Boolean(e.reverse) } });
   };
   view.edges.forEach((e, i) => pushEdge(e, e.id ?? `e-${i}`));
   view.nodes.forEach((n) => {

@@ -1,10 +1,8 @@
 import { Link } from "react-router-dom";
 import { industries } from "../data/industries.js";
 import { industryMedia } from "../data/assets.js";
-import { useKioskIdle } from "../hooks/useKioskIdle.js";
 
 export default function IndustryExplorerPage() {
-  useKioskIdle(120000, true);
 
   return (
     <div className="page-scroll">

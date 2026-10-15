@@ -12,6 +12,7 @@
   --teal-flow: #0d9488;
   --text-primary: #1a2b3c;
   --text-secondary: #5a6b7d;
+  --text-strong: #334155;
   --border-subtle: #d8e0e8;
   --shadow-soft: 0 4px 24px rgba(26, 43, 60, 0.08);
   --touch-min: 44px;
@@ -43,17 +44,16 @@ body,
   justify-content: center;
 }
 .home-video-loop__player {
+  position: absolute;
+  inset: 0;
+  background: #000;
+  pointer-events: none;
+}
+.home-video-loop__player > div,
+.home-video-loop__player iframe {
   width: 100%;
   height: 100%;
-  max-height: 100%;
-  object-fit: contain;
-  background: #000;
-}
-.home-video-loop__player::cue {
-  background: rgba(0, 0, 0, 0.75);
-  color: #fff;
-  font-size: clamp(14px, 1.8vw, 22px);
-  line-height: 1.35;
+  border: 0;
 }
 .home-loop-actions {
   flex-shrink: 0;
@@ -125,7 +125,8 @@ body,
 @media (max-width: 900px) { .service-modal { grid-template-columns: 1fr; } }
 .service-modal-close { position: absolute; top: 16px; right: 16px; z-index: 2; background: var(--bg-secondary); border: 1px solid var(--border-subtle); color: var(--text-primary); width: var(--touch-min); height: var(--touch-min); border-radius: 50%; cursor: pointer; font-size: 22px; box-shadow: var(--shadow-soft); }
 .service-modal-media { background: #000; padding: 20px; min-height: 280px; }
-.service-modal-media video { width: 100%; max-height: 360px; border-radius: 6px; }
+.service-modal-media video,
+.service-modal-media iframe { width: 100%; height: 360px; max-height: 360px; border: 0; border-radius: 6px; }
 .service-modal-info { padding: 28px 32px; }
 .service-modal-info .kicker { font-size: 11px; letter-spacing: .1em; color: var(--orange-brand); text-transform: uppercase; }
 .service-modal-info h2 { font-family: var(--font-display); font-size: 26px; margin: 8px 0 12px; }

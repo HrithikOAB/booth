@@ -1,20 +1,23 @@
 export default function ServiceVideoPanel({ service }) {
-  if (!service?.video) {
+  if (!service?.youtubeId) {
     return (
       <div className="service-modal-media" style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
         <div style={{ textAlign: "center", color: "#a7b5c3" }}>
           <div style={{ fontSize: 48, marginBottom: 12 }}>{service?.icon}</div>
-          <p>Live demo available at the booth — ask a Cloudera expert.</p>
+          <p>No demo video for this service yet.</p>
         </div>
       </div>
     );
   }
   return (
     <div className="service-modal-media">
-      <video key={service.video} controls playsInline muted preload="metadata">
-        <source src={service.video} type="video/mp4" />
-        {service.captions && <track kind="captions" src={service.captions} srcLang="en" label="English" default />}
-      </video>
+      <iframe
+        key={service.youtubeId}
+        src={`https://www.youtube-nocookie.com/embed/${service.youtubeId}?rel=0&modestbranding=1`}
+        title={`${service.name} demo`}
+        allow="autoplay; encrypted-media; picture-in-picture"
+        allowFullScreen
+      />
     </div>
   );
 }

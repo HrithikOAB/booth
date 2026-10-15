@@ -2,11 +2,9 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import PlatformStack from "../components/architecture/PlatformStack.jsx";
 import ArchitectureSearch from "../components/architecture/ArchitectureSearch.jsx";
-import { useKioskIdle } from "../hooks/useKioskIdle.js";
 
 export default function PlatformExplorerPage() {
   const [search, setSearch] = useState("");
-  useKioskIdle(90000, true);
 
   return (
     <div className="explorer-page explorer-page--dark">

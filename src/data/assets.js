@@ -1,9 +1,6 @@
-/** Asset paths — only reference files under /public that exist or are documented placeholders. */
+/** Asset paths. The app no longer bundles video; industry cards use gradients only. */
 
 export const assets = {
-  heroBackgroundVideo: "/videos/hybrid-anywhere.mp4",
-  heroBackgroundFallback: "/videos/open-data-lakehouse.mp4",
-  heroPoster: null,
   architectureReferenceImage: null,
 };
 
@@ -13,5 +10,5 @@ export const industryMedia = {
   telco: { video: null, gradient: "linear-gradient(135deg, #0a1628 0%, #3a2d5c 100%)" },
   healthcare: { video: null, gradient: "linear-gradient(135deg, #0a1628 0%, #1e4a4a 100%)" },
   manufacturing: { video: null, gradient: "linear-gradient(135deg, #0a1628 0%, #4a3a28 100%)" },
-  pharma: { video: "/videos/pharma-clinical.mp4", gradient: "linear-gradient(135deg, #0a1628 0%, #3a2850 100%)" },
+  pharma: { video: null, gradient: "linear-gradient(135deg, #0a1628 0%, #3a2850 100%)" },
 };

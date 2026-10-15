@@ -21,21 +21,6 @@ export function VerifiedBadge({ item }) {
 
 export function VideoCard({ item }) {
   const [open, setOpen] = useState(false);
-  if (item.type === "local") {
-    return (
-      <figure className="media-card">
-        <video controls preload="metadata" src={item.src}>
-          {item.captions && <track kind="captions" srcLang="en" label="English" src={item.captions} default />}
-        </video>
-        <figcaption>
-          <strong>{item.title}</strong>
-          <span className="media-meta">
-            Booth video{item.captions ? " · captions" : ""} <VerifiedBadge item={item} />
-          </span>
-        </figcaption>
-      </figure>
-    );
-  }
   return (
     <figure className="media-card">
       {open ? (

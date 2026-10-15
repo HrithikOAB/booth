@@ -155,10 +155,10 @@ const onprem = group({
   id: "on-premises-deployment", name: "On-Premises Deployment",
   tagline: "Run Cloudera in your own data centers — private, sovereign or air-gapped.",
   overview: "The On-Premises group in the footer shows the infrastructure customers run themselves: object storage, Dell, S3-compatible storage, NVIDIA and AMD hardware. Cloudera Base, Data Services 1.5.x and Anywhere Cloud (private, sovereign and air-gapped) all deploy here.",
-  capabilities: ["Bare metal or virtualized hosts", "Kubernetes for Data Services / Anywhere Cloud", "Air-gapped installs", "Certified hardware partners"],
+  capabilities: ["Bare metal or virtualized hosts", "Kubernetes for Data Services / Anywhere Cloud", "Air-gapped installs", "Hardware partners (Dell ObjectScale certified with Cloudera, Sep 2025)"],
   workflow: { stages: [["infra", "Provide infrastructure", "Servers, storage, network.", "dell-technologies"], ["k8s", "Kubernetes", "For containerized services."], ["install", "Install Cloudera", "Base or Anywhere Cloud.", "cloudera-base-datahub"], ["secure", "Secure", "SDX / fabric.", "cloudera-sdx"], ["run", "Run", "Workloads near the data."]] },
   views: {
-    internal: { nodes: [["focus", "On premises", "", "focus"], ["obj", "Object Store", "", "store", "cloudera-object-store"], ["dell", "Dell", "", "vendor", "dell-technologies"], ["s3", "S3", "", "store", "s3-storage"], ["nvidia", "NVIDIA", "", "vendor", "nvidia"], ["amd", "AMD", "Needs verification.", "vendor", "amd"]], edges: [["focus", "obj"], ["focus", "dell"], ["focus", "s3"], ["focus", "nvidia"], ["focus", "amd", "", { dashed: true }]] },
+    internal: { nodes: [["focus", "On premises", "", "focus"], ["obj", "Object Store", "", "store", "cloudera-object-store"], ["dell", "Dell", "", "vendor", "dell-technologies"], ["s3", "S3", "", "store", "s3-storage"], ["nvidia", "NVIDIA", "", "vendor", "nvidia"], ["amd", "AMD", "Processor and accelerator hardware option.", "vendor", "amd"]], edges: [["focus", "obj"], ["focus", "dell"], ["focus", "s3"], ["focus", "nvidia"], ["focus", "amd", "", { dashed: true }]] },
     dataFlow: { nodes: [["src", "Plant/branch sources", "", "external"], ["dc", "Data center lakehouse", "", "focus"], ["users", "Users", "", "client"]], edges: [["src", "dc"], ["dc", "users"]] },
     deployment: { nodes: [["base", "Cloudera Base", "", "cloudera", "cloudera-base-datahub"], ["acc", "Anywhere Cloud private", "", "cloudera", "cloudera-anywhere-cloud"], ["focus", "On premises", "", "focus"]], edges: [["base", "focus"], ["acc", "focus"]] },
   },

@@ -165,6 +165,7 @@ export function useCaseArchitecture(industry, useCase) {
 
   return {
     views: { internal, workflow: lifecycle },
+    trace: { label: "Business event → action", nodes: chain.map((s) => s.id) },
     componentIds: [...componentIds].filter((id) => componentById[id]),
   };
 }

@@ -14,7 +14,31 @@ export const CHECKS = [
   { id: "useCases", label: "Use cases", test: (c) => (c.useCases?.length ?? 0) >= 1 },
   { id: "resources", label: "Verified resources", test: (c) => resourcesFor(c.id).docs.some((d) => d.verified) },
   { id: "media", label: "Media", test: (c) => resourcesFor(c.id).videos.length > 0 },
+  { id: "booth", label: "Booth-ready", test: (c) => boothProblems(c).length === 0 },
 ];
+
+const MAX_ONE_LINER = 90;
+const sentenceCount = (s = "") => (s.match(/[.!?](\s|$)/g) ?? []).length || (s.trim() ? 1 : 0);
+
+/** Booth rules: short one-liner, status, workflow, a Watch or Docs action, micro text ≤ 3 sentences, valid trace. */
+export function boothProblems(c) {
+  const p = [];
+  const b = c.booth ?? {};
+  if (!b.status) p.push("no status");
+  if (!b.oneLiner) p.push("no one-liner");
+  else if (b.oneLiner.length > MAX_ONE_LINER) p.push(`one-liner ${b.oneLiner.length} chars (> ${MAX_ONE_LINER})`);
+  if (!c.workflow?.stages?.length) p.push("no workflow");
+  const res = resourcesFor(c.id);
+  if (!res.videos.length && !res.docs.length) p.push("no watch/docs action");
+  Object.entries(b.nodes ?? {}).forEach(([id, n]) => {
+    if (n.micro && sentenceCount(n.micro) > 3) p.push(`micro text for ${id} > 3 sentences`);
+  });
+  if (b.trace && c.views.internal) {
+    const ids = new Set(flatNodes(c.views.internal).map((n) => n.id));
+    b.trace.nodes.filter((id) => !ids.has(id)).forEach((id) => p.push(`trace node ${id} not in architecture`));
+  }
+  return p;
+}
 
 function danglingRefs(c) {
   const refs = [...(c.relatedComponentIds ?? []), c.parentId, c.previousEditionId].filter(Boolean);
@@ -35,6 +59,7 @@ export function computeCoverage() {
       origin: c.origin,
       results,
       dangling,
+      boothProblems: boothProblems(c),
       illustrative: Boolean(c.illustrative),
       needsVerification: Boolean(c.needsVerification),
       verificationNotes: c.verificationNotes ?? [],

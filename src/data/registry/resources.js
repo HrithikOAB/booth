@@ -2,13 +2,34 @@
 // `npm run check-links`, which writes verification.js; only entries with a
 // passing check render as "Verified".
 import verification from "./verification.js";
+import { industries } from "../industries.js";
 
 const PR = (slug, title) => ({ kind: "press", title, url: `https://www.cloudera.com/about/news-and-blogs/press-releases/${slug}.html` });
 const doc = (title, url, kind = "docs") => ({ kind, title, url });
-const local = (slug, title, { captions = false, note } = {}) => ({
-  type: "local", title, src: `/videos/${slug}.mp4`, captions: captions ? `/videos/${slug}.en.vtt` : null, note,
-});
 const yt = (id, title, channel) => ({ type: "youtube", id, title, channel, url: `https://www.youtube.com/watch?v=${id}` });
+
+// Clips that used to be bundled MP4s now point at the matching Cloudera YouTube video.
+// Only reuses IDs already present elsewhere in the registry; any slug not listed is dropped.
+const LOCAL_YT = {
+  "private-ai": "JqWmErXze-s",
+  "ai-inference-secure": "RYcSax0zLcg",
+  "ai-inference-prototype": "RYcSax0zLcg",
+  "data-engineering": "d7X5UY8o56k",
+  "open-data-lakehouse": "DcC7OCP8ke0",
+  "cdf-overview": "tLEGcWC4paI",
+  "realtime-ai": "tLEGcWC4paI",
+  "data-warehouse": "w4rte8HIjBI",
+  "agent-studio-iceberg": "XZMaJaLBN6s",
+  "anywhere-cloud": "-dtzknHhvTo",
+  "hybrid-anywhere": "-dtzknHhvTo",
+  "sdx": "aFHlU9P5mFg",
+  "data-lineage": "FEDicBHXkgc",
+  "metadata-harvest": "Cp1cYP7i8S8",
+};
+const local = (slug, title) => {
+  const id = LOCAL_YT[slug];
+  return id ? yt(id, title, "Cloudera, Inc.") : null;
+};
 
 const P = {
   anywhere: PR("2026-08-19-cloudera-powers-the-agentic-ai-era-with-cloudera-anywhere-cloud", "Cloudera powers the agentic AI era with Cloudera Anywhere Cloud (Aug 2026)"),
@@ -30,18 +51,31 @@ const P = {
   awsSovereign: PR("2025-10-09-cloudera-leverages-aws-to-deliver-a-sovereign-ready-data-and-ai-platform-as-a-launch-partner-for-the-aws-european-sovereign-cloud", "Sovereign-ready platform on AWS European Sovereign Cloud (Oct 2025)"),
 };
 
+const arch = (title, url) => doc(title, url, "architecture");
+
 const D = {
   anywhereProduct: doc("Cloudera Anywhere Cloud", "https://www.cloudera.com/products/anywhere-cloud.html", "product"),
   fabricProduct: doc("Unified Data Fabric", "https://www.cloudera.com/products/unified-data-fabric.html", "product"),
   lineageProduct: doc("Cloudera Data Lineage", "https://www.cloudera.com/products/unified-data-fabric/data-lineage.html", "product"),
+  aiProduct: doc("Cloudera AI", "https://www.cloudera.com/products/enterprise-ai/ai.html", "product"),
+  aiArch: arch("Cloudera AI architecture", "https://docs.cloudera.com/machine-learning/cloud/architecture-overview/topics/ml-architecture-overview-cml.html"),
+  workbenchProduct: doc("Cloudera AI Workbench", "https://www.cloudera.com/products/machine-learning/ai-workbench.html", "product"),
+  inferenceArch: arch("Cloudera AI Inference service architecture (blog)", "https://www.cloudera.com/blog/technical/cloudera-ai-inference-service-enables-easy-integration-and-deployment-of-genai.html"),
+  hybridArch: arch("How Cloudera Hybrid Environments work", "https://docs.cloudera.com/hybrid-cloud/latest/overview/topics/hc-how-hybrid-cloud-envs-work.html"),
+  ozoneArch: arch("Introduction to Ozone (Cloudera docs)", "https://docs.cloudera.com/cdp-private-cloud-base/7.1.7/ozone-overview/topics/ozone-introduction.html"),
 };
 
+const PRIVATE_AI_YT = yt("JqWmErXze-s", "Cloudera Private AI: Bring AI to Your Data Anywhere", "Cloudera, Inc.");
+
 const raw = {
-  "cloudera-ai": { docs: [doc("Cloudera AI documentation", "https://docs.cloudera.com/machine-learning/cloud/index.html"), P.nim, P.inference2026, P.privateAi], videos: [local("private-ai", "Private AI with Cloudera", { captions: true }), local("ai-inference-secure", "Secure AI Inference demo"), yt("_ijsX-TPqCc", "Why Cloudera AI is the Key to Solving Your Data Readiness and AI Project Backlog", "Cloudera, Inc.")] },
-  "cloudera-data-engineering": { docs: [doc("Cloudera Data Engineering documentation", "https://docs.cloudera.com/data-engineering/cloud/index.html"), P.nvidiaSpark], videos: [local("data-engineering", "Cloudera Data Engineering overview", { captions: true }), yt("d7X5UY8o56k", "External IDE Connectivity with Cloudera Data Engineering", "Cloudera, Inc.")] },
+  "cloudera-ai": { docs: [D.aiArch, D.aiProduct, doc("Cloudera AI documentation", "https://docs.cloudera.com/machine-learning/cloud/index.html"), P.nim, P.inference2026, P.privateAi], videos: [local("private-ai", "Private AI with Cloudera", { captions: true }), PRIVATE_AI_YT, local("ai-inference-secure", "Secure AI Inference demo"), yt("_ijsX-TPqCc", "Why Cloudera AI is the Key to Solving Your Data Readiness and AI Project Backlog", "Cloudera, Inc.")] },
+  "cloudera-ai-workbench": { docs: [D.aiArch, D.workbenchProduct, doc("Cloudera AI documentation", "https://docs.cloudera.com/machine-learning/cloud/index.html")], videos: [PRIVATE_AI_YT, local("private-ai", "Private AI with Cloudera", { captions: true })] },
+  "ai-studios": { docs: [D.aiProduct, D.workbenchProduct], videos: [local("ai-inference-prototype", "AI Inference: prototype to production"), PRIVATE_AI_YT] },
+  "ai-inference-service": { docs: [D.inferenceArch, P.nim, P.inference2026], videos: [local("ai-inference-secure", "Secure AI Inference demo"), yt("RYcSax0zLcg", "Cloudera AI Inference Service Demo", "Cloudera, Inc."), local("ai-inference-prototype", "AI Inference: prototype to production")] },
+  "cloudera-data-engineering": { docs: [doc("Cloudera Data Engineering", "https://www.cloudera.com/products/data-engineering.html", "product"), doc("Cloudera Data Engineering documentation", "https://docs.cloudera.com/data-engineering/cloud/index.html"), P.nvidiaSpark], videos: [local("data-engineering", "Cloudera Data Engineering overview", { captions: true }), yt("d7X5UY8o56k", "External IDE Connectivity with Cloudera Data Engineering", "Cloudera, Inc.")] },
   "cloudera-data-lakehouse": { docs: [doc("Open Data Lakehouse", "https://www.cloudera.com/products/open-data-lakehouse.html", "product"), P.icebergRest, P.polaris], videos: [local("open-data-lakehouse", "Cloudera Open Data Lakehouse", { captions: true }), yt("DcC7OCP8ke0", "Why Cloudera Open Data Lakehouse with Apache Iceberg?", "Cloudera, Inc.")] },
-  "cloudera-data-flow": { docs: [doc("Cloudera Data Flow documentation", "https://docs.cloudera.com/dataflow/cloud/index.html")], videos: [local("cdf-overview", "Cloudera Data Flow overview", { captions: true }), local("realtime-ai", "Real-time AI with Cloudera"), yt("tLEGcWC4paI", "What's new in Cloudera Data Flow 2.10: NiFi 2 Flows", "Cloudera, Inc.")] },
-  "cloudera-data-warehouse": { docs: [doc("Cloudera Data Warehouse documentation", "https://docs.cloudera.com/data-warehouse/cloud/index.html")], videos: [local("data-warehouse", "Cloudera Data Warehouse", { captions: true }), yt("w4rte8HIjBI", "ClouderaNow 21 - Easily Create Insights From All Your Data", "Cloudera, Inc.")] },
+  "cloudera-data-flow": { docs: [arch("Cloudera Data Flow architecture", "https://docs.cloudera.com/dataflow/cloud/overview/topics/cdf-architecture.html"), doc("Cloudera Data Flow", "https://www.cloudera.com/products/dataflow.html", "product"), doc("Cloudera Data Flow documentation", "https://docs.cloudera.com/dataflow/cloud/index.html")], videos: [local("cdf-overview", "Cloudera Data Flow overview", { captions: true }), local("realtime-ai", "Real-time AI with Cloudera"), yt("tLEGcWC4paI", "What's new in Cloudera Data Flow 2.10: NiFi 2 Flows", "Cloudera, Inc.")] },
+  "cloudera-data-warehouse": { docs: [arch("Cloudera Data Warehouse service architecture", "https://docs.cloudera.com/data-warehouse/cloud/overview/topics/dw-service-architecture.html"), doc("Cloudera Data Warehouse documentation", "https://docs.cloudera.com/data-warehouse/cloud/index.html")], videos: [local("data-warehouse", "Cloudera Data Warehouse", { captions: true }), yt("w4rte8HIjBI", "ClouderaNow 21 - Easily Create Insights From All Your Data", "Cloudera, Inc.")] },
   "cloudera-agent-studio": { docs: [P.crewai, doc("Cloudera AI documentation", "https://docs.cloudera.com/machine-learning/cloud/index.html")], videos: [local("agent-studio-iceberg", "Agent Studio Iceberg MCP agent"), yt("XZMaJaLBN6s", "Cloudera Agent Studio", "Cloudera, Inc.")] },
   "cloudera-data-services-2": { docs: [D.anywhereProduct, P.anywhere], videos: [local("anywhere-cloud", "Cloudera Anywhere Cloud")] },
   "data-engineering-2": { docs: [P.nvidiaSpark, D.anywhereProduct], videos: [local("data-engineering", "Cloudera Data Engineering overview", { captions: true })] },
@@ -49,9 +83,10 @@ const raw = {
   "ai-2": { docs: [D.anywhereProduct, P.anywhere], videos: [local("ai-inference-prototype", "AI Inference: prototype to production")] },
   "data-flow-2": { docs: [D.anywhereProduct], videos: [local("cdf-overview", "Cloudera Data Flow overview", { captions: true })] },
   "cloudera-base-datahub": { docs: [doc("Cloudera Base on premises documentation", "https://docs.cloudera.com/cdp-private-cloud-base/latest/index.html"), P.privateAi], videos: [local("hybrid-anywhere", "Hybrid data anywhere")] },
-  "cloudera-manager": { docs: [doc("Cloudera Manager (Base documentation)", "https://docs.cloudera.com/cdp-private-cloud-base/latest/index.html")], videos: [] },
+  "cloudera-manager": { docs: [arch("Cloudera Manager architecture", "https://docs.cloudera.com/cloudera-manager/7.13.2/concepts/topics/cm-architecture.html"), doc("Cloudera Manager (Base documentation)", "https://docs.cloudera.com/cdp-private-cloud-base/latest/index.html")], videos: [] },
+  "hybrid-cloud": { docs: [D.hybridArch, D.anywhereProduct], videos: [local("hybrid-anywhere", "Hybrid data anywhere"), local("anywhere-cloud", "Cloudera Anywhere Cloud")] },
   "cloudera-platform": { docs: [doc("Cloudera Runtime / Base documentation", "https://docs.cloudera.com/cdp-private-cloud-base/latest/index.html")], videos: [local("hybrid-anywhere", "Hybrid data anywhere")] },
-  "cloudera-object-store": { docs: [doc("Apache Ozone", "https://ozone.apache.org/", "project"), P.dell], videos: [yt("qt8bhOy65xg", "Introduction to Ozone on Cloudera Data Platform", "Cloudera, Inc.")] },
+  "cloudera-object-store": { docs: [D.ozoneArch, doc("Apache Ozone", "https://ozone.apache.org/", "project"), P.dell], videos: [yt("qt8bhOy65xg", "Introduction to Ozone on Cloudera Data Platform", "Cloudera, Inc.")] },
   "cloudera-sdx": { docs: [doc("Cloudera SDX", "https://www.cloudera.com/products/sdx.html", "product"), D.fabricProduct], videos: [local("sdx", "Cloudera SDX", { captions: true }), yt("aFHlU9P5mFg", "Data Sharing Powered by REST Catalog", "Cloudera, Inc.")] },
   "cloudera-data-lineage": { docs: [D.lineageProduct, P.octopai, P.federation], videos: [local("data-lineage", "Cloudera Data Lineage"), local("metadata-harvest", "Automated metadata harvesting"), yt("FEDicBHXkgc", "Cloudera Octopai Overview: Intelligent Automated Data Lineage", "OCTOPAI")] },
   "unified-data-fabric": { docs: [D.fabricProduct, P.federation, P.polaris], videos: [yt("Jr8FOQLgZcY", "Cloudera Unified Data Fabric: Automate Data Governance, Lineage, and Trust", "Cloudera, Inc.")] },
@@ -65,6 +100,7 @@ const raw = {
   "apache-flink": { docs: [doc("Apache Flink documentation", "https://nightlies.apache.org/flink/flink-docs-stable/", "project")], videos: [yt("PVoc5tRr6to", "What is Apache Flink?", "Confluent")] },
   "apache-impala": { docs: [doc("Apache Impala", "https://impala.apache.org/", "project")], videos: [yt("HSCJi4TnN3k", "Apache Impala 101: A quick-start guide", "Cloudera, Inc."), local("data-warehouse", "Impala in Cloudera Data Warehouse", { captions: true })] },
   "apache-hive": { docs: [doc("Apache Hive", "https://hive.apache.org/", "project")], videos: [local("data-warehouse", "Hive in Cloudera Data Warehouse", { captions: true })] },
+  "apache-hbase": { docs: [arch("Apache HBase Reference Guide", "https://hbase.apache.org/book.html"), doc("Apache HBase", "https://hbase.apache.org/", "project")], videos: [] },
   "apache-airflow": { docs: [doc("Apache Airflow documentation", "https://airflow.apache.org/docs/", "project")], videos: [local("data-engineering", "Airflow in Cloudera Data Engineering", { captions: true })] },
   "neo4j": { docs: [doc("Neo4j documentation", "https://neo4j.com/docs/", "project")], videos: [yt("HjvQSfGIyHo", "Neo4j Fundamentals", "Neo4j")] },
   "starrocks": { docs: [doc("StarRocks documentation", "https://docs.starrocks.io/", "project")], videos: [yt("-yVk7t942is", "What is StarRocks", "PhoenixAI")] },
@@ -81,7 +117,7 @@ const raw = {
   "s3-storage": { docs: [doc("Amazon S3", "https://aws.amazon.com/s3/", "vendor"), doc("Apache Ozone", "https://ozone.apache.org/", "project")], videos: [yt("77lMCiiMilo", "Introduction to Amazon S3", "Amazon Web Services")] },
   "dell-technologies": { docs: [P.dell], videos: [local("private-ai", "Private AI with Cloudera", { captions: true })] },
   "nvidia": { docs: [P.nim, P.nvidiaSpark, P.nvidia2024], videos: [yt("RYcSax0zLcg", "Cloudera AI Inference Service Demo", "Cloudera, Inc."), local("ai-inference-secure", "Secure AI Inference demo")] },
-  "amd": { docs: [doc("AMD EPYC server processors", "https://www.amd.com/en/products/processors/server/epyc.html", "vendor")], videos: [] },
+  "amd": { docs: [doc("AMD EPYC server processors", "https://www.amd.com/en/products/processors/server/epyc.html", "vendor"), doc("AMD ROCm documentation", "https://rocm.docs.amd.com/", "vendor")], videos: [] },
   "on-premises-deployment": { docs: [P.privateAi, P.dell], videos: [local("hybrid-anywhere", "Hybrid data anywhere"), local("private-ai", "Private AI with Cloudera", { captions: true })] },
   "cloud-deployment": { docs: [D.anywhereProduct, P.awsSovereign], videos: [local("anywhere-cloud", "Cloudera Anywhere Cloud")] },
   "flow-seamless-transition": { docs: [D.anywhereProduct, P.anywhere], videos: [local("hybrid-anywhere", "Hybrid data anywhere")] },
@@ -91,21 +127,30 @@ const raw = {
 
 const statusFor = (url) => verification.urls?.[url];
 
+/** Attach link-check status from the automated link checker. */
+export function markResource(item) {
+  const s = statusFor(item.url);
+  return { ...item, verified: Boolean(s?.ok), checkedOn: s?.checkedOn || null, status: s?.status ?? null };
+}
+
 export function resourcesFor(componentId) {
   const r = raw[componentId] || { docs: [], videos: [] };
-  const mark = (item) => {
-    if (item.type === "local") return { ...item, verified: true, verifiedBy: "Bundled with the booth" };
-    const s = statusFor(item.url);
-    return { ...item, verified: Boolean(s?.ok), checkedOn: s?.checkedOn || null, status: s?.status ?? null };
-  };
-  return { docs: r.docs.map(mark), videos: r.videos.map(mark) };
+  // Drop unmapped (null) clips and collapse duplicate YouTube videos within a component.
+  const seen = new Set();
+  const videos = [];
+  for (const v of r.videos) {
+    if (!v || seen.has(v.id)) continue;
+    seen.add(v.id);
+    videos.push(markResource(v));
+  }
+  return { docs: r.docs.map(markResource), videos };
 }
 
 export const allResourceUrls = () => {
-  const urls = new Set();
+  const urls = new Set(industries.map((i) => i.url).filter(Boolean));
   Object.values(raw).forEach((r) => {
     r.docs.forEach((d) => urls.add(d.url));
-    r.videos.filter((v) => v.type === "youtube").forEach((v) => urls.add(v.url));
+    r.videos.filter((v) => v && v.type === "youtube").forEach((v) => urls.add(v.url));
   });
   return [...urls];
 };

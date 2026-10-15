@@ -2,6 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import { HashRouter } from "react-router-dom";
 import App from "./App.jsx";
+import { ThemeProvider } from "./hooks/useTheme.jsx";
 import "@xyflow/react/dist/style.css";
 import "./theme.css";
 import "./styles/booth.css";
@@ -11,11 +12,15 @@ import "./styles/explorer.css";
 import "./styles/component-page.css";
 import "./styles/shell.css";
 import "./styles/light-theme.css";
+import "./styles/stage.css";
+import "./styles/dark-theme.css";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <HashRouter>
-      <App />
+      <ThemeProvider>
+        <App />
+      </ThemeProvider>
     </HashRouter>
   </React.StrictMode>
 );

@@ -8,13 +8,13 @@ export const KIND_LABEL = {
   cloudera: "Cloudera",
   apache: "Open source",
   partner: "Partner",
-  vendor: "Vendor",
+  vendor: "Infrastructure",
   cloud: "Cloud",
   data: "Data",
   store: "Storage",
   client: "Client",
   external: "External",
-  security: "Security",
+  security: "Governance",
 };
 
 function handles(dir) {
@@ -29,22 +29,30 @@ function stateClass(data, selected) {
     selected && "an--selected",
     data.isChild && "an--child",
     data.ref && "an--linked",
+    data.booth && "an--booth",
   ]
     .filter(Boolean)
     .join(" ");
 }
 
+function tagFor(data) {
+  if (data.step != null) return `Step ${data.step + 1}`;
+  if (data.kind === "focus" && data.focusTag) return data.focusTag;
+  return KIND_LABEL[data.kind] ?? "Node";
+}
+
 export const ArchNode = memo(function ArchNode({ id, data, selected }) {
   const [tp, sp] = handles(data.dir);
+  const showDesc = !data.booth && !data.isChild && data.description;
   return (
-    <div className={`an ${stateClass(data, selected)}`} title={data.description || data.label}>
+    <div className={`an ${stateClass(data, selected)}`} title={data.booth ? data.label : data.description || data.label}>
       <Handle type="target" position={tp} />
       <div className="an-head">
-        <span className="an-kind">{data.step != null ? `Step ${data.step + 1}` : KIND_LABEL[data.kind] ?? "Node"}</span>
+        <span className="an-kind">{tagFor(data)}</span>
         {data.ref && <span className="an-ref" aria-hidden="true">↗</span>}
       </div>
       <div className="an-label">{data.label}</div>
-      {!data.isChild && data.description && <div className="an-desc">{data.description}</div>}
+      {showDesc && <div className="an-desc">{data.description}</div>}
       {data.hasChildren && (
         <button
           type="button"

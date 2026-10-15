@@ -19,7 +19,9 @@ function borderPoint(a, b) {
   return { x: a.x + dx * s, y: a.y + dy * s };
 }
 
-function ParticleEdge({ id, source, target, sourceX, sourceY, targetX, targetY, sourcePosition, targetPosition, label, markerEnd, data = {} }) {
+const GLOWING = new Set(["active", "trace"]);
+
+function ParticleEdge({ id, source, target, sourceX, sourceY, targetX, targetY, sourcePosition, targetPosition, label, markerEnd, markerStart, data = {} }) {
   const sNode = useInternalNode(source);
   const tNode = useInternalNode(target);
 
@@ -39,14 +41,19 @@ function ParticleEdge({ id, source, target, sourceX, sourceY, targetX, targetY, 
   }
 
   const state = data.state ?? "normal";
-  const count = data.reducedMotion || state === "dim" ? 0 : state === "active" ? 3 : 1;
-  const dur = state === "active" ? 1.5 : 3.4;
+  const kind = data.kind ?? (data.dashed ? "control" : "data");
+  const glow = GLOWING.has(state);
+  // Only data-carrying edges get particles; control and optional paths stay still unless highlighted.
+  const carries = kind === "data" || kind === "bi" || glow;
+  const count = data.reducedMotion || state === "dim" || !carries ? 0 : glow ? 3 : 1;
+  const dur = glow ? 1.5 : 3.4;
 
   return (
     <>
-      <BaseEdge id={id} path={path} markerEnd={markerEnd} className={`pe pe--${state}${data.dashed ? " pe--dashed" : ""}`} />
+      {glow && <path d={path} className="pe-glow" fill="none" />}
+      <BaseEdge id={id} path={path} markerEnd={markerEnd} markerStart={markerStart} className={`pe pe--${state} pe--k-${kind}${kind === "control" ? " pe--dashed" : ""}`} />
       {Array.from({ length: count }, (_, i) => (
-        <circle key={i} r={state === "active" ? 4 : 2.6} className={`pe-dot pe-dot--${state}`}>
+        <circle key={i} r={glow ? 4.5 : 2.8} className={`pe-dot pe-dot--${state}`}>
           <animateMotion dur={`${dur}s`} begin={`${(i * dur) / count}s`} repeatCount="indefinite" path={path} />
         </circle>
       ))}
